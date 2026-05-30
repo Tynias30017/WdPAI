@@ -1,1 +1,0 @@
-Zaktualizowano na podstawie wersji prowadzącego
