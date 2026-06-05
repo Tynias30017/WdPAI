@@ -15,7 +15,9 @@ services:
       - db_data:/var/lib/postgresql/data
 
   web:
-    image: php:8.2-apache
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: powerlifting_web
     restart: always
     ports:
