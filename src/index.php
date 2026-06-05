@@ -9,11 +9,14 @@ require_once __DIR__ . '/Core/Autoloader.php';
 
 use Core\Router;
 use Controllers\HomeController;
+use Controllers\AuthController;
 
 $router = new Router();
 
-// Rejestrujemy naszą pierwszą trasę
+// Rejestrujemy trasy
 $router->add('GET', '/', [HomeController::class, 'index']);
+$router->add('GET', '/register', [AuthController::class, 'register']);
+$router->add('POST', '/register', [AuthController::class, 'store']);
 
 // Zmienne $_SERVER zawierają dane o żądaniu z przeglądarki
 $uri = parse_url($_SERVER['REQUEST_URI'])['path'];
