@@ -43,10 +43,54 @@ class AuthController
         // 5. Zapis do bazy
         if ($userModel->create($email, $passwordHash)) {
             // Po udanej rejestracji przekierowujemy użytkownika na stronę główną (wkrótce na logowanie)
-            header("Location: /");
+            header("Location: /login");
             exit;
         } else {
             die("Błąd: Nie udało się utworzyć konta.");
         }
+    }
+
+    // Wyświetlanie formularza logowania (GET)
+    public function login(): void
+    {
+        View::render('auth/login', [
+            'title' => 'Logowanie - Trójbój Siłowy'
+        ]);
+    }
+
+    // Przetwarzanie logowania (POST)
+    public function authenticate(): void
+    {
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if (empty($email) || empty($password)) {
+            die("Błąd: Wypełnij wszystkie pola!");
+        }
+
+        $userModel = new User();
+        $user = $userModel->findByEmail($email);
+
+        // BEZPIECZEŃSTWO: Weryfikacja hasła funkcją password_verify
+        // Sprawdzamy czy użytkownik istnieje ORAZ czy podane hasło pasuje do hasha z bazy
+        if ($user && password_verify($password, $user['password_hash'])) {
+            // Zapisujemy dane do SESJI (użytkownik jest od teraz zalogowany!)
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
+            
+            header("Location: /");
+            exit;
+        } else {
+            die("Błąd: Nieprawidłowy adres e-mail lub hasło.");
+        }
+    }
+
+    // Wylogowywanie (GET)
+    public function logout(): void
+    {
+        // Niszczymy sesję, usuwając wszystkie zapisane w niej dane
+        session_destroy();
+        header("Location: /");
+        exit;
     }
 }

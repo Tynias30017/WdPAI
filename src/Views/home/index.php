@@ -10,6 +10,15 @@
 
     <header>
         <h1><?= htmlspecialchars($title) ?></h1>
+        <nav>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong></p>
+                <a href="/logout">Wyloguj się</a>
+            <?php else: ?>
+                <a href="/login">Zaloguj się</a> | 
+                <a href="/register">Zarejestruj się</a>
+            <?php endif; ?>
+        </nav>
     </header>
 
     <main>
