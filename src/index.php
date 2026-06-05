@@ -13,6 +13,7 @@ require_once __DIR__ . '/Core/Autoloader.php';
 use Core\Router;
 use Controllers\HomeController;
 use Controllers\AuthController;
+use Controllers\WorkoutController;
 
 $router = new Router();
 
@@ -23,6 +24,13 @@ $router->add('POST', '/register', [AuthController::class, 'store']);
 $router->add('GET', '/login', [AuthController::class, 'login']);
 $router->add('POST', '/login', [AuthController::class, 'authenticate']);
 $router->add('GET', '/logout', [AuthController::class, 'logout']);
+
+// Trasy treningowe
+$router->add('GET', '/workouts', [WorkoutController::class, 'index']);
+$router->add('GET', '/workouts/create', [WorkoutController::class, 'create']);
+$router->add('POST', '/workouts/create', [WorkoutController::class, 'store']);
+$router->add('GET', '/workout', [WorkoutController::class, 'show']);
+$router->add('POST', '/workout/add-set', [WorkoutController::class, 'addSet']);
 
 // Zmienne $_SERVER zawierają dane o żądaniu z przeglądarki
 $uri = parse_url($_SERVER['REQUEST_URI'])['path'];

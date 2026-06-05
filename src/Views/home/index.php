@@ -13,6 +13,7 @@
         <nav>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong></p>
+                <a href="/workouts">Moje Treningi</a> |
                 <a href="/logout">Wyloguj się</a>
             <?php else: ?>
                 <a href="/login">Zaloguj się</a> | 

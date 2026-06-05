@@ -36,7 +36,22 @@ class Workout extends Model
             ':notes' => $notes
         ]);
         
-        // Zwracamy ID nowo utworzonego wiersza
         return (int)$stmt->fetchColumn();
+    }
+
+    // Zwraca konkretny trening tylko jeśli należy do danego użytkownika (Bezpieczeństwo!)
+    public function getByIdAndUser(int $id, int $userId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM workouts 
+            WHERE id = :id AND user_id = :user_id
+        ");
+        $stmt->execute([
+            ':id' => $id,
+            ':user_id' => $userId
+        ]);
+        
+        $workout = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $workout ?: null;
     }
 }
