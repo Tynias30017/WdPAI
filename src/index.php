@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 // Wymagamy pliku z klasą Router. Wkrótce dodamy autoloader, żeby nie pisać tego ręcznie.
-require_once __DIR__ . '/Core/Router.php';
-require_once __DIR__ . '/Controllers/HomeController.php';
+// Inicjujemy nasz Autoloader (to jedyny require_once, jakiego będziemy potrzebować!)
+require_once __DIR__ . '/Core/Autoloader.php';
+\Core\Autoloader::register();
 
 use Core\Router;
 use Controllers\HomeController;
