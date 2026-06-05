@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
     <!-- Tu w przyszłości podepniemy naszego CSSa -->
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
 

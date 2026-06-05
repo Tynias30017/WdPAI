@@ -1,0 +1,175 @@
+/* Zmienne CSS - schemat kolorów pod aplikację "Trójbój Siłowy" */
+:root {
+    --primary-color: #e53935; /* Agresywna, sportowa czerwień */
+    --primary-hover: #b71c1c;
+    --bg-color: #121212; /* Ciemne tło */
+    --surface-color: #1e1e1e; /* Kolor "kart" i formularzy */
+    --text-color: #ffffff;
+    --text-muted: #aaaaaa;
+    --border-color: #333333;
+}
+
+/* Podstawowy reset i ustawienia */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Nagłówek */
+header {
+    background-color: var(--surface-color);
+    padding: 1rem 2rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+header nav a {
+    color: var(--text-color);
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+header nav a:hover {
+    color: var(--primary-color);
+}
+
+header nav p {
+    display: inline-block;
+    margin-right: 15px;
+    color: var(--text-muted);
+}
+
+/* Główny kontener */
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* Formularze i przyciski */
+form div {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Tabele */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+}
+
+/* Listy */
+ul {
+    list-style-type: none;
+}
+
+li {
+    background-color: var(--bg-color);
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 4px solid var(--primary-color);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* === WYMÓG PROJEKTU: MEDIA QUERIES (RWD) === */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    header nav {
+        margin-top: 1rem;
+    }
+
+    header nav a {
+        display: block;
+        margin: 10px 0;
+    }
+
+    main {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
