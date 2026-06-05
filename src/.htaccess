@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Jeśli ścieżka nie jest istniejącym plikiem
+RewriteCond %{REQUEST_FILENAME} !-f
+# Jeśli ścieżka nie jest istniejącym katalogiem
+RewriteCond %{REQUEST_FILENAME} !-d
+# Przekieruj wszystko do index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
