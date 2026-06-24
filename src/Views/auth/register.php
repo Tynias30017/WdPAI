@@ -9,31 +9,38 @@
 <body>
 
     <header>
-        <h1>Zarejestruj się</h1>
+        <h1>Dziennik Trójboisty</h1>
         <nav>
-            <a href="/">Strona główna</a>
+            <a href="/">Strona Główna</a>
+            <a href="/login">Zaloguj się</a>
         </nav>
     </header>
 
-    <main>
-        <!-- Formularz wysyła dane metodą POST na ten sam adres (/register) -->
-        <form action="/register" method="POST">
-            <div>
-                <label for="email">Adres E-mail:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <br>
-            
-            <div>
-                <label for="password">Hasło:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+    <main class="auth-wrapper">
+        <div class="auth-header">
+            <h1>Zarejestruj się</h1>
+            <p>Dołącz do społeczności siłaczy i zacznij śledzić swoje postępy już dziś.</p>
+        </div>
 
-            <br>
+        <div class="card">
+            <form action="/register" method="POST">
+                <div>
+                    <label for="email">Adres E-mail:</label>
+                    <input type="email" id="email" name="email" placeholder="nazwa@domena.pl" required>
+                </div>
+                
+                <div>
+                    <label for="password">Hasło:</label>
+                    <input type="password" id="password" name="password" placeholder="Min. 6 znaków" required>
+                </div>
+                
+                <button type="submit" style="width: 100%; margin-top: 1rem;">Zarejestruj profil zawodnika</button>
+            </form>
             
-            <button type="submit">Zarejestruj profil zawodnika</button>
-        </form>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                Masz już konto? <a href="/login" style="font-weight: bold;">Zaloguj się</a>
+            </p>
+        </div>
     </main>
 
 </body>

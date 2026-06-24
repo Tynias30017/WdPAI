@@ -27,9 +27,25 @@ class WorkoutController
         $workoutModel = new Workout();
         $workouts = $workoutModel->getUserWorkouts($_SESSION['user_id']);
 
+        // Pobieramy statystyki użytkownika z widoku bazodanowego user_training_stats
+        $db = \Core\Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM user_training_stats WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $_SESSION['user_id']]);
+        $stats = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Jeśli brak statystyk (użytkownik nie ma jeszcze treningów), przypisujemy domyślne
+        if (!$stats) {
+            $stats = [
+                'total_workouts' => 0,
+                'total_volume' => 0.0,
+                'max_weight_lifted' => 0.0
+            ];
+        }
+
         View::render('workouts/index', [
-            'title' => 'Moje Treningi',
-            'workouts' => $workouts
+            'title' => 'Moje Treningi - Panel Użytkownika',
+            'workouts' => $workouts,
+            'stats' => $stats
         ]);
     }
 
