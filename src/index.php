@@ -41,6 +41,19 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     $router->dispatch($uri, $method);
-} catch (Exception $e) {
-    echo "Błąd: " . $e->getMessage();
+} catch (\Throwable $e) {
+    $code = (int)$e->getCode();
+    if (!in_array($code, [400, 401, 403, 404, 500])) {
+        $code = 500;
+    }
+    http_response_code($code);
+    
+    try {
+        \Core\View::render("errors/{$code}", [
+            'title' => "Błąd {$code}",
+            'message' => $e->getMessage()
+        ]);
+    } catch (\Throwable $viewEx) {
+        echo "<h1>Błąd {$code}</h1><p>" . htmlspecialchars($e->getMessage()) . "</p>";
+    }
 }
