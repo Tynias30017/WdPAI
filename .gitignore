@@ -8,3 +8,7 @@
 # Project requirements / notes (not part of submission)
 gemini.md
 GEMINI.md
+phpunit.phar
+src/phpunit.phar
+.phpunit.result.cache
+src/.phpunit.result.cache
