@@ -11,6 +11,12 @@ class HomeController
 {
     public function index(): void
     {
+        // Jeśli użytkownik jest zalogowany, przekierowujemy go bezpośrednio do pulpitu treningów
+        if (isset($_SESSION['user_id'])) {
+            header("Location: /workouts");
+            exit;
+        }
+
         $categoryModel = new WeightCategory();
         $categories = $categoryModel->getAll();
 

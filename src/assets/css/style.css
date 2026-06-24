@@ -1,16 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Zmienne CSS - Ultra-premium, sportowy ciemny schemat (IronLog Style) */
+/* Zmienne CSS - Ciemny motyw premium w stylu IronLog (zinc-950/red-500) */
 :root {
     --bg-color: #09090b;       /* Głęboka czerń (zinc-950) */
+    --bg-darker: #020203;      /* Jeszcze głębsza czerń dla paska bocznego */
     --surface-color: #18181b;  /* Ciemny grafit (zinc-900) */
-    --primary-color: #ef4444;  /* Agresywna, sportowa czerwień (red-500) */
+    --primary-color: #ef4444;  /* Czerwień trójbojowa (red-500) */
     --primary-hover: #dc2626;  /* Ciemniejsza czerwień (red-600) */
     --text-color: #fafafa;     /* Czysta biel (zinc-50) */
     --text-muted: #a1a1aa;     /* Przygaszony szary (zinc-400) */
-    --border-color: #27272a;   /* Cienkie granice kart (zinc-800) */
+    --border-color: #27272a;   /* Cienkie ramki kart (zinc-800) */
     --success-color: #22c55e;  /* Kolor zielony (green-500) */
-    --warning-color: #eab308;  /* Kolor żółty (yellow-500) */
+    --warning-color: #f59e0b;  /* Kolor żółty/pomarańczowy dla timera */
     --input-bg: #09090b;       /* Tło pól input (zinc-950) */
 }
 
@@ -27,80 +28,168 @@ body {
     color: var(--text-color);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
 }
 
-/* Nagłówek */
-header {
-    background-color: rgba(24, 24, 27, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: 1rem 2rem;
+/* ================= UKŁAD STRONY (SHELL) ================= */
+
+/* Kontener główny - siatka z panelem bocznym na desktopie */
+.app-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+}
+
+/* Panel Boczny (Sidebar) */
+.sidebar {
+    background-color: var(--bg-darker);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.sidebar-logo svg {
+    color: var(--primary-color);
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-menu a:hover {
+    color: var(--text-color);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-menu a.active {
+    color: var(--text-color);
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 0 8px 8px 0;
+    padding-left: calc(1rem - 3px);
+}
+
+/* Obszar Treści Głównej */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Zapobiega rozszerzaniu się flexboxa */
+}
+
+/* Pasek górny (Top Bar) */
+.top-bar {
+    height: 70px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 2rem;
+    background-color: rgba(9, 9, 11, 0.5);
+    backdrop-filter: blur(8px);
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    border: 2px solid var(--border-color);
+}
+
+/* Mobilny Pasek Nawigacji (widoczny tylko na małych ekranach) */
+.mobile-nav {
+    display: none;
+    background-color: var(--bg-darker);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
     justify-content: space-between;
     align-items: center;
 }
 
-header h1 {
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    color: var(--text-color);
+.mobile-nav-logo {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-color);
+    text-decoration: none;
 }
 
-header h1::before {
-    content: "🏋️";
-    font-size: 1.4rem;
-}
-
-header nav {
+.mobile-nav-links {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
-header nav a {
+.mobile-nav-links a {
     color: var(--text-muted);
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
 }
 
-header nav a:hover {
-    color: var(--text-color);
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-header nav a.active {
+.mobile-nav-links a.active {
     color: var(--primary-color);
     background-color: rgba(239, 68, 68, 0.1);
 }
 
-header nav p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    border-right: 1px solid var(--border-color);
-    padding-right: 1rem;
-    margin-right: 0.5rem;
-}
-
-/* Główny kontener */
+/* Główny kontener treści */
 main {
     max-width: 1200px;
+    width: 100%;
     margin: 2rem auto;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
+    flex: 1;
 }
 
-/* Karta (standardowy kontener) */
+/* ================= KOMPONENTY WIZUALNE ================= */
+
+/* Karta */
 .card {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
@@ -110,20 +199,20 @@ main {
 }
 
 .card h2, .card h3 {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-/* Siatka Pulpitu (Stats Cards) */
+/* Siatka statystyk (Pulpit) */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
+    gap: 1.25rem;
     margin-bottom: 2rem;
 }
 
@@ -148,7 +237,7 @@ main {
 
 .stat-label {
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-muted);
@@ -156,7 +245,7 @@ main {
 }
 
 .stat-value {
-    font-size: 1.75rem;
+    font-size: 1.85rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-color);
@@ -169,7 +258,49 @@ main {
     font-weight: 500;
 }
 
-/* Formularze i Przyciski */
+/* Wykaz Treningów w postaci kart */
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.workout-item {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.workout-item:hover {
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.workout-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.workout-date {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.workout-notes {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ================= FORMULARZE I ELEMENTY STERUJĄCE ================= */
+
 form div {
     margin-bottom: 1.25rem;
 }
@@ -178,7 +309,7 @@ label {
     display: block;
     margin-bottom: 0.5rem;
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-muted);
 }
 
@@ -256,7 +387,8 @@ button:active, .btn:active {
     border-radius: 6px;
 }
 
-/* Tabele treningowe */
+/* ================= TABELE I SIATKI ================= */
+
 table {
     width: 100%;
     border-collapse: separate;
@@ -277,7 +409,7 @@ th {
     background-color: rgba(255, 255, 255, 0.02);
     color: var(--text-muted);
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -286,7 +418,8 @@ tr:last-child td {
     border-bottom: none;
 }
 
-/* Widok Dwukolumnowy (Trening) */
+/* ================= KONTENER DWUKOLUMNOWY (TRENINGI) ================= */
+
 .workout-container {
     display: grid;
     grid-template-columns: 320px 1fr;
@@ -297,9 +430,10 @@ tr:last-child td {
 .workout-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
+/* Stoper Odliczania (Rest Timer) */
 .rest-timer-box {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
@@ -314,7 +448,7 @@ tr:last-child td {
     letter-spacing: 0.05em;
     color: var(--text-muted);
     margin-bottom: 0.5rem;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .rest-timer-value {
@@ -332,53 +466,13 @@ tr:last-child td {
     margin-top: 1rem;
 }
 
-/* Pulpit - Lista Treningów */
-.workout-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.workout-item {
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: border-color 0.2s ease;
-}
-
-.workout-item:hover {
-    border-color: var(--primary-color);
-}
-
-.workout-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.workout-date {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--text-color);
-}
-
-.workout-notes {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    font-style: italic;
-}
-
-/* Badges i statusy */
+/* Odznaki (Badges) */
 .badge {
     display: inline-flex;
     align-items: center;
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 4px;
     background-color: rgba(255,255,255,0.05);
     color: var(--text-muted);
@@ -394,9 +488,9 @@ tr:last-child td {
     color: var(--success-color);
 }
 
-/* Panel Logowania/Rejestracji (Center Card) */
+/* Ekrany Logowania/Rejestracji (Center Card) */
 .auth-wrapper {
-    max-width: 420px;
+    max-width: 440px;
     margin: 4rem auto;
 }
 
@@ -406,7 +500,7 @@ tr:last-child td {
 }
 
 .auth-header h1 {
-    font-size: 1.75rem;
+    font-size: 1.85rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     margin-bottom: 0.5rem;
@@ -417,53 +511,47 @@ tr:last-child td {
     font-size: 0.9rem;
 }
 
-/* === RESPONSYWNOŚĆ (MEDIA QUERIES) === */
+/* ================= RESPONSYWNOŚĆ (MEDIA QUERIES) ================= */
+
 @media (max-width: 992px) {
+    /* Układ jednoszpaltowy na tabletach i komórkach */
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: none; /* Ukrywamy boczny pasek */
+    }
+
+    .mobile-nav {
+        display: flex; /* Pokazujemy pasek nawigacji na górze */
+    }
+
     .workout-container {
-        grid-template-columns: 1fr; /* Przejście w 1 kolumnę na tabletach i komórkach */
+        grid-template-columns: 1fr;
     }
 
     .workout-sidebar {
-        order: 2; /* Przenosi licznik/notatki pod główny widok serii na komórkach */
+        order: 2; /* Rest Timer na dole na telefonach */
+    }
+
+    main {
+        padding: 0 1rem;
+        margin: 1.5rem auto;
     }
 }
 
 @media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1.25rem 1rem;
-        text-align: center;
-    }
-
-    header nav {
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
-        border-top: 1px solid var(--border-color);
-        padding-top: 0.75rem;
-        gap: 0.5rem;
-    }
-
-    header nav p {
-        border-right: none;
-        padding-right: 0;
-        margin-right: 0;
-        width: 100%;
-        text-align: center;
-        margin-bottom: 0.25rem;
-    }
-
-    header nav a {
-        font-size: 0.8rem;
-    }
-
-    main {
-        margin: 1rem auto;
-        padding: 0 1rem;
-    }
-
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .mobile-nav-links {
+        gap: 0.25rem;
+    }
+    
+    .mobile-nav-links a {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
     }
 }

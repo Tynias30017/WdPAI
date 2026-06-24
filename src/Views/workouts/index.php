@@ -4,86 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <!-- v=time() zapobiega cache'owaniu pliku CSS w przeglądarce -->
+    <link rel="stylesheet" href="/assets/css/style.css?v=<?= time() ?>">
 </head>
 <body>
 
-    <header>
-        <h1>Dziennik Treningowy</h1>
-        <nav>
-            <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong></p>
-            <a href="/">Strona Główna</a>
-            <a href="/profile">Mój Profil</a>
+    <!-- WERSJA MOBILNA: Górny pasek nawigacji (widoczny tylko na telefonach/tabletach) -->
+    <div class="mobile-nav">
+        <a href="/" class="mobile-nav-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18M6 12H18M6 6H18"/></svg>
+            <span>IronLog</span>
+        </a>
+        <div class="mobile-nav-links">
+            <a href="/">Pulpit</a>
             <a href="/workouts" class="active">Treningi</a>
+            <a href="/profile">Profil</a>
             <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
-                <a href="/admin/users" style="color: #facc15;">Panel Admina</a>
+                <a href="/admin/users" style="color: #facc15;">Admin</a>
             <?php endif; ?>
-            <a href="/logout">Wyloguj się</a>
-        </nav>
-    </header>
+            <a href="/logout">Wyloguj</a>
+        </div>
+    </div>
 
-    <main>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-                <h2 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em;">Witaj z powrotem, Alex!</h2>
-                <p style="color: var(--text-muted);">Gotowy na dzisiejszy trening? Pobijmy dzisiaj jakieś rekordy!</p>
-            </div>
-            <a href="/workouts/create" class="btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Rozpocznij Nowy Trening
+    <!-- UKŁAD CAŁOŚCIOWY: Siatka z panelem bocznym na desktopie -->
+    <div class="app-layout">
+        
+        <!-- LEWY PANEL (Sidebar - widoczny tylko na komputerach) -->
+        <aside class="sidebar">
+            <a href="/" class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18M6 12H18M6 6H18"/></svg>
+                <span>IronLog</span>
             </a>
-        </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                        Pulpit
+                    </a>
+                </li>
+                <li>
+                    <a href="/workouts" class="active">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M3 20h4M3 12h18M3 4h18"/></svg>
+                        Treningi
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Mój Profil
+                    </a>
+                </li>
+                <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+                    <li>
+                        <a href="/admin/users" style="color: #facc15;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            Panel Admina
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <li style="margin-top: auto;">
+                    <a href="/logout" style="color: #ef4444;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        Wyloguj się
+                    </a>
+                </li>
+            </ul>
+        </aside>
 
-        <!-- Statystyki z widoku SQL (Wyświetlane na pulpicie) -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Całkowita Objętość</div>
-                <div class="stat-value"><?= number_format((float)($stats['total_volume'] ?? 0.0), 1, '.', ' ') ?> kg</div>
-                <div class="stat-desc">Suma wszystkich serii</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-label">Ukończone Treningi</div>
-                <div class="stat-value"><?= htmlspecialchars((string)($stats['total_workouts'] ?? 0)) ?></div>
-                <div class="stat-desc">Zapisane sesje w dzienniku</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-label">Najcięższy Dźwig</div>
-                <div class="stat-value"><?= number_format((float)($stats['max_weight_lifted'] ?? 0.0), 1, '.', ' ') ?> kg</div>
-                <div class="stat-desc">Twój aktualny rekord</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;">Historia Treningów</h2>
-
-            <?php if (empty($workouts)): ?>
-                <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                    <p style="margin-bottom: 1.5rem;">Nie masz jeszcze zapisanych żadnych treningów. Czas rozpocząć pierwszą sesję!</p>
-                    <a href="/workouts/create" class="btn">Zapisz pierwszy trening</a>
+        <!-- PRAWY PANEL (Główna zawartość) -->
+        <div class="main-content">
+            
+            <!-- Górny pasek z małym info o zalogowanym (komputery) -->
+            <header class="top-bar">
+                <div class="user-badge">
+                    <span>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong> (<?= htmlspecialchars($_SESSION['user_role'] ?? 'user') ?>)</span>
+                    <div class="user-avatar"><?= strtoupper(substr($_SESSION['user_email'], 0, 1)) ?></div>
                 </div>
-            <?php else: ?>
-                <div class="workout-list">
-                    <?php foreach ($workouts as $workout): ?>
-                        <div class="workout-item">
-                            <div class="workout-info">
-                                <span class="workout-date">Trening z dnia <?= htmlspecialchars($workout['workout_date']) ?></span>
-                                <?php if (!empty($workout['notes'])): ?>
-                                    <span class="workout-notes">Notatki: <?= htmlspecialchars($workout['notes']) ?></span>
-                                <?php else: ?>
-                                    <span class="workout-notes" style="color: rgba(255,255,255,0.15);">Brak dodatkowych notatek</span>
-                                <?php endif; ?>
-                            </div>
-                            <div>
-                                <a href="/workout?id=<?= $workout['id'] ?>" class="btn btn-secondary btn-sm">Edytuj / Zobacz</a>
-                            </div>
+            </header>
+
+            <main>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em;">Moje Treningi</h2>
+                        <p style="color: var(--text-muted);">Przeglądaj historię i planuj swoje sesje trójbojowe.</p>
+                    </div>
+                    <a href="/workouts/create" class="btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Rozpocznij Nowy Trening
+                    </a>
+                </div>
+
+                <!-- Statystyki z widoku SQL -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Całkowita Objętość</div>
+                        <div class="stat-value"><?= number_format((float)($stats['total_volume'] ?? 0.0), 1, '.', ' ') ?> kg</div>
+                        <div class="stat-desc">Zsumowany ciężar ze wszystkich serii</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Ilość Sesji</div>
+                        <div class="stat-value"><?= htmlspecialchars((string)($stats['total_workouts'] ?? 0)) ?></div>
+                        <div class="stat-desc">Zapisane treningi w bazie danych</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Max. Ciężar</div>
+                        <div class="stat-value"><?= number_format((float)($stats['max_weight_lifted'] ?? 0.0), 1, '.', ' ') ?> kg</div>
+                        <div class="stat-desc">Najcięższa podniesiona seria</div>
+                    </div>
+                </div>
+
+                <!-- Lista treningów -->
+                <div class="card">
+                    <h2 style="font-size: 1.2rem; margin-bottom: 1.5rem;">Historia Zapisanych Treningów</h2>
+
+                    <?php if (empty($workouts)): ?>
+                        <div style="text-align: center; padding: 3.5rem 1rem; color: var(--text-muted);">
+                            <p style="margin-bottom: 1.5rem; font-size: 0.95rem;">Nie masz jeszcze zapisanych żadnych sesji treningowych.</p>
+                            <a href="/workouts/create" class="btn">Dodaj swój pierwszy trening</a>
                         </div>
-                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="workout-list">
+                            <?php foreach ($workouts as $workout): ?>
+                                <div class="workout-item">
+                                    <div class="workout-info">
+                                        <span class="workout-date">Sesja z dnia: <?= htmlspecialchars($workout['workout_date']) ?></span>
+                                        <?php if (!empty($workout['notes'])): ?>
+                                            <span class="workout-notes">Notatki: <?= htmlspecialchars($workout['notes']) ?></span>
+                                        <?php else: ?>
+                                            <span class="workout-notes" style="color: rgba(255,255,255,0.15);">Brak notatek do tego treningu</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div>
+                                        <a href="/workout?id=<?= $workout['id'] ?>" class="btn btn-secondary btn-sm">Rejestruj Serie</a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
+            </main>
         </div>
-    </main>
+    </div>
 
 </body>
 </html>

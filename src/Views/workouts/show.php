@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css?v=<?= time() ?>">
     <style>
         .timer-btn {
             background-color: transparent;
@@ -24,12 +24,6 @@
             border-color: var(--primary-color);
             background-color: rgba(239, 68, 68, 0.1);
         }
-        .sets-table input {
-            text-align: center;
-            font-weight: bold;
-            width: 80px;
-            padding: 0.4rem;
-        }
         .form-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr auto;
@@ -44,126 +38,188 @@
     </style>
 </head>
 <body>
- 
-    <header>
-        <h1>Dziennik Treningowy - Edycja</h1>
-        <nav>
-            <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong></p>
-            <a href="/">Strona Główna</a>
-            <a href="/profile">Mój Profil</a>
+
+    <!-- WERSJA MOBILNA: Górny pasek nawigacji (komórki) -->
+    <div class="mobile-nav">
+        <a href="/" class="mobile-nav-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18M6 12H18M6 6H18"/></svg>
+            <span>IronLog</span>
+        </a>
+        <div class="mobile-nav-links">
+            <a href="/">Pulpit</a>
             <a href="/workouts" class="active">Treningi</a>
-            <a href="/logout">Wyloguj się</a>
-        </nav>
-    </header>
- 
-    <main>
-        <!-- Wykaz z RWD: na desktopie dwukolumnowy, na komórkach jednokolumnowy -->
-        <div class="workout-container">
+            <a href="/profile">Profil</a>
+            <a href="/logout">Wyloguj</a>
+        </div>
+    </div>
+
+    <!-- UKŁAD DESKTOP: Siatka z panelem bocznym (Sidebar) -->
+    <div class="app-layout">
+        
+        <!-- LEWY PANEL (Sidebar) -->
+        <aside class="sidebar">
+            <a href="/" class="sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18M6 12H18M6 6H18"/></svg>
+                <span>IronLog</span>
+            </a>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                        Pulpit
+                    </a>
+                </li>
+                <li>
+                    <a href="/workouts" class="active">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M3 20h4M3 12h18M3 4h18"/></svg>
+                        Treningi
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Mój Profil
+                    </a>
+                </li>
+                <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+                    <li>
+                        <a href="/admin/users" style="color: #facc15;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            Panel Admina
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <li style="margin-top: auto;">
+                    <a href="/logout" style="color: #ef4444;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        Wyloguj się
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- PRAWY PANEL (Główna zawartość) -->
+        <div class="main-content">
             
-            <!-- Lewa kolumna (Pasek boczny na desktopie, na komórkach ląduje na dole/pozycjonowany) -->
-            <div class="workout-sidebar">
-                
-                <!-- LICZNIK PRZERWY (Zrzuty ekranu miały Rest Timer) -->
-                <div class="rest-timer-box">
-                    <div class="rest-timer-title">Rest Timer</div>
-                    <div class="rest-timer-value" id="timer-display">01:30</div>
-                    <div class="rest-timer-controls">
-                        <button class="timer-btn" id="timer-minus">-30s</button>
-                        <button class="timer-btn" id="timer-play-pause" style="width: auto; padding: 0 0.75rem; border-radius: 6px;">Start</button>
-                        <button class="timer-btn" id="timer-plus">+30s</button>
-                    </div>
+            <!-- Pasek górny (Top Bar) -->
+            <header class="top-bar">
+                <div class="user-badge">
+                    <span>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong> (<?= htmlspecialchars($_SESSION['user_role'] ?? 'user') ?>)</span>
+                    <div class="user-avatar"><?= strtoupper(substr($_SESSION['user_email'], 0, 1)) ?></div>
                 </div>
+            </header>
 
-                <!-- Karta szczegółów treningu -->
-                <div class="card">
-                    <h3 style="font-size: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">Szczegóły</h3>
-                    <div style="font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <div><strong style="color: var(--text-muted);">Data sesji:</strong> <?= htmlspecialchars($workout['workout_date']) ?></div>
-                        <?php if (!empty($workout['notes'])): ?>
-                            <div>
-                                <strong style="color: var(--text-muted);">Notatki:</strong>
-                                <p style="font-size: 0.85rem; font-style: italic; color: var(--text-muted); margin-top: 0.25rem;">
-                                    <?= nl2br(htmlspecialchars($workout['notes'])) ?>
-                                </p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <a href="/workouts" class="btn btn-secondary" style="width: 100%;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    Wróć do treningów
-                </a>
-            </div>
-
-            <!-- Prawa kolumna (Główna część: wykaz wykonanych serii i dodawanie nowej) -->
-            <div class="card" style="margin-bottom: 0;">
-                <h2 style="font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1.5rem;">
-                    Zarejestrowane Serie
-                </h2>
-                
-                <div id="no-sets-message" style="display: <?= empty($sets) ? 'block' : 'none' ?>; text-align: center; padding: 2rem; color: var(--text-muted);">
-                    Brak wykonanych serii na tym treningu. Wprowadź pierwszą serię poniżej!
-                </div>
-         
-                <table id="sets-table" style="display: <?= empty($sets) ? 'none' : 'table' ?>; margin-bottom: 2rem;">
-                    <thead>
-                        <tr>
-                            <th>Ćwiczenie</th>
-                            <th>Ciężar</th>
-                            <th>Powtórzenia</th>
-                            <th style="width: 80px; text-align: center;">Akcja</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($sets as $set): ?>
-                            <tr id="set-row-<?= $set['id'] ?>">
-                                <td><strong style="color: var(--text-color);"><?= htmlspecialchars($set['exercise_name']) ?></strong></td>
-                                <td><span class="badge badge-primary"><?= htmlspecialchars((string)($set['weight'] ?? 0.0)) ?> kg</span></td>
-                                <td><strong><?= htmlspecialchars((string)($set['reps'] ?? 0)) ?></strong> powtórzeń</td>
-                                <td style="text-align: center;">
-                                    <button class="btn-delete-set btn-danger btn-sm" data-id="<?= $set['id'] ?>" style="background-color: #d32f2f;">Usuń</button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-         
-                <h3 style="font-size: 1.1rem; margin-top: 2rem; margin-bottom: 1rem;">Dodaj wykonaną serię</h3>
-                <form id="add-set-form">
-                    <!-- Ukryte pole przesyłające ID treningu -->
-                    <input type="hidden" name="workout_id" value="<?= $workout['id'] ?>">
+            <main>
+                <!-- Siatka treningowa: po lewej stoper/szczegóły, po prawej lista serii -->
+                <div class="workout-container">
                     
-                    <div class="form-row">
-                        <div>
-                            <label for="exercise_id">Ćwiczenie:</label>
-                            <select id="exercise_id" name="exercise_id" required>
-                                <?php foreach ($exercises as $exercise): ?>
-                                    <option value="<?= $exercise['id'] ?>">
-                                        <?= htmlspecialchars($exercise['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                    <!-- Kolumna 1: Panel boczny sesji (Rest Timer i Notatki) -->
+                    <div class="workout-sidebar">
                         
-                        <div>
-                            <label for="weight">Ciężar (kg):</label>
-                            <input type="number" step="0.5" id="weight" name="weight" placeholder="np. 100" required>
+                        <!-- Rest Timer -->
+                        <div class="rest-timer-box">
+                            <div class="rest-timer-title">Rest Timer</div>
+                            <div class="rest-timer-value" id="timer-display">01:30</div>
+                            <div class="rest-timer-controls">
+                                <button class="timer-btn" id="timer-minus">-30s</button>
+                                <button class="timer-btn" id="timer-play-pause" style="width: auto; padding: 0 0.75rem; border-radius: 6px;">Start</button>
+                                <button class="timer-btn" id="timer-plus">+30s</button>
+                            </div>
                         </div>
-                        
-                        <div>
-                            <label for="reps">Powtórzenia:</label>
-                            <input type="number" id="reps" name="reps" placeholder="np. 8" required>
+
+                        <!-- Dane treningu -->
+                        <div class="card">
+                            <h3 style="font-size: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">Szczegóły Sesji</h3>
+                            <div style="font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div><strong style="color: var(--text-muted);">Data:</strong> <?= htmlspecialchars($workout['workout_date']) ?></div>
+                                <?php if (!empty($workout['notes'])): ?>
+                                    <div>
+                                        <strong style="color: var(--text-muted);">Notatki:</strong>
+                                        <p style="font-size: 0.85rem; font-style: italic; color: var(--text-muted); margin-top: 0.25rem;">
+                                            <?= nl2br(htmlspecialchars($workout['notes'])) ?>
+                                        </p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        
-                        <button type="submit" class="btn" style="height: 42px;">Dodaj Serię</button>
+
+                        <a href="/workouts" class="btn btn-secondary" style="width: 100%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            Wróć do treningów
+                        </a>
                     </div>
-                </form>
-            </div>
+
+                    <!-- Kolumna 2: Rejestracja i Tabela serii -->
+                    <div class="card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1.5rem;">
+                            Wykonane Serie w tym Treningu
+                        </h2>
+                        
+                        <div id="no-sets-message" style="display: <?= empty($sets) ? 'block' : 'none' ?>; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                            Brak zarejestrowanych serii. Użyj poniższego formularza, aby dodać swoją pierwszą serię!
+                        </div>
+                 
+                        <table id="sets-table" style="display: <?= empty($sets) ? 'none' : 'table' ?>; margin-bottom: 2rem;">
+                            <thead>
+                                <tr>
+                                    <th>Ćwiczenie</th>
+                                    <th>Ciężar</th>
+                                    <th>Powtórzenia</th>
+                                    <th style="width: 80px; text-align: center;">Akcja</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($sets as $set): ?>
+                                    <tr id="set-row-<?= $set['id'] ?>">
+                                        <td><strong style="color: var(--text-color);"><?= htmlspecialchars($set['exercise_name']) ?></strong></td>
+                                        <td><span class="badge badge-primary"><?= htmlspecialchars((string)($set['weight'] ?? 0.0)) ?> kg</span></td>
+                                        <td><strong><?= htmlspecialchars((string)($set['reps'] ?? 0)) ?></strong> powtórzeń</td>
+                                        <td style="text-align: center;">
+                                            <button class="btn-delete-set btn-danger btn-sm" data-id="<?= $set['id'] ?>" style="background-color: #d32f2f;">Usuń</button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                 
+                        <h3 style="font-size: 1.05rem; margin-top: 2rem; margin-bottom: 1rem;">Dodaj nową serię (Asynchronicznie)</h3>
+                        <form id="add-set-form">
+                            <input type="hidden" name="workout_id" value="<?= $workout['id'] ?>">
+                            
+                            <div class="form-row">
+                                <div>
+                                    <label for="exercise_id">Ćwiczenie:</label>
+                                    <select id="exercise_id" name="exercise_id" required>
+                                        <?php foreach ($exercises as $exercise): ?>
+                                            <option value="<?= $exercise['id'] ?>">
+                                                <?= htmlspecialchars($exercise['name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="weight">Ciężar (kg):</label>
+                                    <input type="number" step="0.5" id="weight" name="weight" placeholder="np. 100" required>
+                                </div>
+                                
+                                <div>
+                                    <label for="reps">Powtórzenia:</label>
+                                    <input type="number" id="reps" name="reps" placeholder="np. 8" required>
+                                </div>
+                                
+                                <button type="submit" class="btn" style="height: 42px;">Dodaj Serię</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </main>
 
         </div>
-    </main>
+    </div>
 
+    <!-- SKRYPTY SĄ IDENTYCZNE JAK WCZEŚNIEJ, NIE ZMIENIAMY LOGIKI DZIAŁANIA -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('add-set-form');
@@ -171,7 +227,6 @@
         const table = document.getElementById('sets-table');
         const noSetsMessage = document.getElementById('no-sets-message');
 
-        // Obsługa asynchronicznego dodawania serii przez Fetch API
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -202,14 +257,9 @@
 
                 const data = await response.json();
                 if (data.success) {
-                    // Wyczyszczenie pól formularza
                     form.elements['weight'].value = '';
                     form.elements['reps'].value = '';
-
-                    // Ponowne wyrenderowanie tabeli serii
                     renderSets(data.sets);
-
-                    // Automatyczne uruchomienie Rest Timera po dodaniu serii!
                     resetAndStartTimer();
                 }
             } catch (err) {
@@ -218,7 +268,6 @@
             }
         });
 
-        // Funkcja renderująca zaktualizowaną listę serii
         function renderSets(sets) {
             if (!sets || sets.length === 0) {
                 table.style.display = 'none';
@@ -247,7 +296,6 @@
             attachDeleteEvents();
         }
 
-        // Obsługa asynchronicznego usuwania serii przez Fetch API
         function attachDeleteEvents() {
             document.querySelectorAll('.btn-delete-set').forEach(button => {
                 const newButton = button.cloneNode(true);
@@ -281,8 +329,6 @@
                             if (row) {
                                 row.remove();
                             }
-                            
-                            // Sprawdzamy czy tabela jest teraz pusta
                             if (tableBody.children.length === 0) {
                                 table.style.display = 'none';
                                 noSetsMessage.style.display = 'block';
@@ -305,8 +351,8 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // === LOGIKA REST TIMERA ===
-        let timerSeconds = 90; // Domyślnie 01:30 (90s)
+        // Rest Timer Logic
+        let timerSeconds = 90;
         let timerInterval = null;
 
         const timerDisplay = document.getElementById('timer-display');
@@ -343,15 +389,14 @@
                     timerPlayPause.style.borderColor = 'var(--border-color)';
                     timerPlayPause.style.color = 'var(--text-color)';
                     
-                    // Prosty alarm dźwiękowy z przeglądarki (Beep)
                     try {
                         const context = new (window.AudioContext || window.webkitAudioContext)();
                         const oscillator = context.createOscillator();
                         oscillator.type = 'sine';
-                        oscillator.frequency.setValueAtTime(880, context.currentTime); // Beep high frequency
+                        oscillator.frequency.setValueAtTime(880, context.currentTime);
                         oscillator.connect(context.destination);
                         oscillator.start();
-                        oscillator.stop(context.currentTime + 0.3); // 300ms beep
+                        oscillator.stop(context.currentTime + 0.3);
                     } catch(e) {}
                     
                     alert('Czas przerwy minął! Czas na kolejną serię!');
@@ -387,7 +432,6 @@
             updateTimerDisplay();
         });
 
-        // Inicjalizacja nasłuchu zdarzeń usuwania na starcie
         attachDeleteEvents();
     });
     </script>
