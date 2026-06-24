@@ -1,0 +1,154 @@
+# Aplikacja do Śledzenia Postępów Treningowych (Trójbój Siłowy)
+
+Projekt internetowej aplikacji służącej jako dziennik treningowy dla zawodników trójboju siłowego (przysiad, wyciskanie leżąc, martwy ciąg). Aplikacja uwzględnia oficjalne kategorie wagowe IPF i oferuje zaawansowane mechanizmy bazodanowe, asynchroniczny interfejs oraz bezpieczne mechanizmy autoryzacji i ról.
+
+---
+
+## 🛠️ Zastosowane Technologie
+* **Backend:** PHP 8.2 (Czysty obiektowy, SOLID, strict MVC z Front Controllerem i Routerem)
+* **Baza Danych:** PostgreSQL 15 (Docker)
+* **Frontend:** Czysty HTML5, CSS3 (zmienne, Media Queries - pełne RWD, tryb Dark Mode) oraz JavaScript (Fetch API do asynchronicznej komunikacji)
+* **Środowisko:** Docker / Docker Compose
+* **Testy:** PHPUnit (testy jednostkowe) + skrypt Bash/curl (testy integracyjne)
+
+---
+
+## 📂 Architektura Aplikacji
+Aplikacja została zbudowana na autorskim, czystym wzorcu **MVC (Model-View-Controller)** bez użycia zewnętrznych frameworków.
+
+### Diagram warstwowy architektury:
+```
++-------------------------------------------------------------------+
+|                           PREZENTACJA                             |
+|    Widoki HTML5 / CSS3 (zmienne, RWD) / Asynchroniczny JS (Fetch) |
++-------------------------------------------------------------------+
+                                 |  (Fetch / POST / GET)
+                                 v
++-------------------------------------------------------------------+
+|                        KONTROLER (MVC)                            |
+|    Front Controller (index.php) -> Router -> Controllers          |
+|    (AuthController, ProfileController, WorkoutController, etc.)   |
++-------------------------------------------------------------------+
+                                 |  (Komunikacja z modelami)
+                                 v
++-------------------------------------------------------------------+
+|                          MODEL (MVC)                              |
+|    Baza klasy Model (Singleton PDO) -> Modele (User, Workout...)  |
++-------------------------------------------------------------------+
+                                 |  (Zapytania SQL / Transakcje)
+                                 v
++-------------------------------------------------------------------+
+|                    BAZA DANYCH (PostgreSQL)                       |
+|    Tabele 3NF / Relacje (1:1, 1:N, N:M) / Widoki / Wyzwalacze     |
++-------------------------------------------------------------------+
+```
+
+---
+
+## 📊 Diagram ERD Bazy Danych
+Diagram bazy danych przedstawia pełną strukturę relacyjną w 3NF, w tym relacje 1:1, 1:N oraz N:M (tabela złączeniowa `workout_sets`).
+
+![Diagram ERD Bazy Danych](erd.svg)
+
+> 💡 **Wskazówka:** Plik [erd.svg](erd.svg) można bezpośrednio zaimportować i edytować w edytorze [draw.io](https://app.diagrams.net).
+
+---
+
+## 🚀 Instrukcja Uruchomienia
+
+### Wymagania wstępne:
+* Docker oraz Docker Compose zainstalowane na systemie.
+
+### Krok po kroku:
+1. Skopiuj plik z przykładowymi zmiennymi środowiskowymi do pliku produkcyjnego:
+   ```bash
+   cp src/.env.example src/.env
+   ```
+2. Uruchom kontenery w tle:
+   ```bash
+   docker-compose up -d
+   ```
+3. Aplikacja będzie dostępna w przeglądarce pod adresem:
+   **[http://localhost:8080](http://localhost:8080)**
+
+---
+
+## 🔐 Zaawansowane SQL w Bazie Danych
+
+Baza spełnia rygorystyczne wymagania projektowe:
+* **Relacje:**
+  * **1:1:** Powiązanie `users` z `user_profiles` za pomocą klucza `user_id`.
+  * **1:N:** Powiązanie `users` z `workouts`.
+  * **N:M:** Powiązanie `workouts` z `exercises` poprzez tabelę asocjacyjną `workout_sets`.
+* **Widok 1 (`user_training_stats`):** Łączy 5 tabel i wyznacza statystyki sumaryczne użytkowników (objętość treningowa, rekordy ciężaru, ilość treningów).
+* **Widok 2 (`exercise_records`):** Złącza tabele w celu wyznaczenia rekordów osobistych (PR) użytkowników dla konkretnych ćwiczeń.
+* **Funkcja i Wyzwalacz (`trigger_determine_weight_category`):** Wyzwalacz `BEFORE INSERT OR UPDATE ON user_profiles` wywołuje funkcję, która automatycznie przelicza i przypisuje odpowiednią kategorię wagową IPF na podstawie aktualnej wagi ciała.
+* **Transakcje bazodanowe:** Zastosowane przy rejestracji użytkownika (jednoczesne bezpieczne dodanie konta i profilu 1:1) oraz usuwaniu konta (zabezpieczenie spójności).
+
+---
+
+## 🧪 Scenariusz Testowy (Krok po kroku)
+
+### 1. Rejestracja i logowanie (Utrzymanie sesji)
+* Przejdź do `/register`, wprowadź dane i zarejestruj się.
+* Przejdź do `/login`, zaloguj się. W sesji zostaną zapisane Twoje dane i przypisana domyślna rola (`user`).
+
+### 2. Edycja Profilu (1:1 i Wyzwalacz bazy)
+* Przejdź do zakładki **Mój Profil** (`/profile`).
+* Wprowadź swoje imię, nazwisko i wagę (np. `82.5` kg).
+* Zapisz zmiany. Zauważ, że pole **Kategoria Wagowa** zostało automatycznie wyliczone przez wyzwalacz bazy danych jako **Do 83 kg**. Zmień wagę na `92` kg – kategoria automatycznie zaktualizuje się na **Do 93 kg**.
+
+### 3. CRUD i asynchroniczny Fetch API (Treningi i Serie)
+* Przejdź do **Moje Treningi** (`/workouts`) i kliknij **Dodaj nowy trening** (`/workouts/create`).
+* Wprowadź datę treningu i kliknij zapisz. Zostaniesz przekierowany do szczegółów treningu (`/workout?id=X`).
+* Dodaj nową serię (np. Martwy ciąg, 150 kg, 5 powtórzeń). Seria zostanie dodana **asynchronicznie (Fetch API)** – pojawi się w tabeli bez przeładowania całej strony!
+* Kliknij przycisk **Usuń** przy danej serii. Seria zostanie usunięta asynchronicznie, a wiersz zniknie z tabeli.
+
+### 4. Uprawnienia użytkowników (Role i Panel Admina)
+* Użytkownik o domyślnej roli (`user`) nie ma dostępu do panelu administratora. Wejście pod `/admin/users` z poziomu konta użytkownika wyświetli dedykowaną stronę błędu **403 Brak uprawnień**.
+* Przejdź do bazy danych lub zaloguj się na domyślne konto administratora:
+  * **Email:** `qwer@qwer`
+  * **Hasło:** `qwer`
+* Jako administrator zobaczysz w nagłówku link **Panel Admina** (`/admin/users`).
+* W panelu admina możesz zmieniać role innych użytkowników (z `user` na `admin` i odwrotnie) oraz usuwać ich konta (akcja kaskadowa `ON DELETE CASCADE` automatycznie usunie ich profile, treningi oraz serie).
+
+### 5. Globalna obsługa błędów
+* Wpisanie nieistniejącego adresu (np. `/nieistnieje`) wyświetli dedykowaną stronę **404 Nie znaleziono strony**.
+* Próba wywołania akcji bez autoryzacji wyświetli stronę błędu lub przekieruje na logowanie.
+
+---
+
+## 🚦 Uruchamianie Testów
+
+### 1. Testy Jednostkowe (PHPUnit)
+Uruchom testy jednostkowe klas `Config` oraz `Router` wewnątrz kontenera:
+```bash
+docker exec powerlifting_web php /var/www/html/phpunit.phar --bootstrap /var/www/html/tests/bootstrap.php /var/www/html/tests
+```
+
+### 2. Testy Integracyjne (Bash + curl)
+Uruchom zewnętrzny skrypt testów integracyjnych badający kody statusów HTTP dla endpointów:
+```bash
+./run_integration_tests.sh
+```
+
+---
+
+## 📋 Checklista Zrealizowanych Wymogów
+- [x] Środowisko Docker (PHP 8.2 + Apache, PostgreSQL 15).
+- [x] Brak frameworków, brak gotowych szablonów. Wszystko od zera.
+- [x] Architektura Strict MVC (Front Controller, Router, PSR-4 Autoloader).
+- [x] Bezpieczna autoryzacja (PHP Session, `password_hash`, `password_verify`).
+- [x] Podział na role użytkowników (`user`, `admin`) weryfikowane przez system.
+- [x] Panel administratora (CRUD użytkowników, zmiana ról, usuwanie kont).
+- [x] Baza danych w 3NF (klucze obce z akcjami referencyjnymi ON DELETE, ON UPDATE).
+- [x] Relacje w bazie danych: 1:1, 1:N oraz N:M.
+- [x] Minimum 2 widoki bazodanowe (złączenia wielu tabel).
+- [x] Wyzwalacz (TRIGGER) oraz funkcja bazodanowa (FUNCTION) przeliczająca kategorie wagowe.
+- [x] Zastosowanie bezpiecznych transakcji bazodanowych.
+- [x] Asynchroniczna obsługa serii treningowych za pomocą Fetch API (dodawanie/usuwanie).
+- [x] Estetyczny design, responsywność (Media Queries) i tryb ciemny (Dark Mode).
+- [x] Globalna obsługa błędów (strony 400, 401, 403, 404, 500).
+- [x] Testy jednostkowe (PHPUnit) oraz integracyjne (Bash/curl).
+- [x] Dokumentacja (README.md, ERD SVG, zmienne środowiskowe .env.example, scenariusz testowy).
+- [x] Systematyczna praca dokumentowana regularnymi commitami w Git.

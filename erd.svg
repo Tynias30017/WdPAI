@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 600" width="100%" height="100%">
+  <!-- Tło schematu -->
+  <rect width="950" height="600" fill="#121212" rx="10"/>
+
+  <defs>
+    <!-- Styl tekstu -->
+    <style>
+      .table-title { font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: bold; fill: #ffffff; }
+      .field { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; fill: #dddddd; }
+      .type { font-family: 'Consolas', 'Courier New', monospace; font-size: 11px; fill: #888888; }
+      .key { font-family: 'Segoe UI', sans-serif; font-size: 10px; font-weight: bold; fill: #e53935; }
+      .rel-text { font-family: 'Segoe UI', sans-serif; font-size: 12px; fill: #aaaaaa; }
+    </style>
+    <!-- Główki tabel -->
+    <linearGradient id="header-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e53935" />
+      <stop offset="100%" stop-color="#b71c1c" />
+    </linearGradient>
+  </defs>
+
+  <!-- ================= TABELA USERS ================= -->
+  <g transform="translate(50, 50)">
+    <rect width="220" height="150" fill="#1e1e1e" stroke="#333333" stroke-width="2" rx="6"/>
+    <rect width="220" height="30" fill="url(#header-grad)" rx="6"/>
+    <text x="15" y="20" class="table-title">users</text>
+    
+    <!-- Kolumny -->
+    <text x="15" y="55" class="field">id <tspan class="key">PK</tspan></text>
+    <text x="140" y="55" class="type">integer</text>
+    
+    <text x="15" y="75" class="field">email <tspan class="key">UQ</tspan></text>
+    <text x="140" y="75" class="type">varchar(255)</text>
+    
+    <text x="15" y="95" class="field">password_hash</text>
+    <text x="140" y="95" class="type">varchar(255)</text>
+    
+    <text x="15" y="115" class="field">role</text>
+    <text x="140" y="115" class="type">varchar(50)</text>
+    
+    <text x="15" y="135" class="field">created_at</text>
+    <text x="140" y="135" class="type">timestamp</text>
+  </g>
+
+  <!-- ================= TABELA USER_PROFILES ================= -->
+  <g transform="translate(370, 50)">
+    <rect width="220" height="170" fill="#1e1e1e" stroke="#333333" stroke-width="2" rx="6"/>
+    <rect width="220" height="30" fill="url(#header-grad)" rx="6"/>
+    <text x="15" y="20" class="table-title">user_profiles</text>
+    
+    <!-- Kolumny -->
+    <text x="15" y="55" class="field">user_id <tspan class="key">PK, FK</tspan></text>
+    <text x="140" y="55" class="type">integer</text>
+    
+    <text x="15" y="75" class="field">first_name</text>
+    <text x="140" y="75" class="type">varchar(50)</text>
+    
+    <text x="15" y="95" class="field">last_name</text>
+    <text x="140" y="95" class="type">varchar(50)</text>
+    
+    <text x="15" y="115" class="field">gender</text>
+    <text x="140" y="115" class="type">varchar(10)</text>
+    
+    <text x="15" y="135" class="field">body_weight</text>
+    <text x="140" y="135" class="type">numeric(5,2)</text>
+    
+    <text x="15" y="155" class="field">weight_category_id <tspan class="key">FK</tspan></text>
+    <text x="150" y="155" class="type">integer</text>
+  </g>
+
+  <!-- ================= TABELA WEIGHT_CATEGORIES ================= -->
+  <g transform="translate(680, 50)">
+    <rect width="220" height="110" fill="#1e1e1e" stroke="#333333" stroke-width="2" rx="6"/>
+    <rect width="220" height="30" fill="url(#header-grad)" rx="6"/>
+    <text x="15" y="20" class="table-title">weight_categories</text>
+    
+    <!-- Kolumny -->
+    <text x="15" y="55" class="field">id <tspan class="key">PK</tspan></text>
+    <text x="140" y="55" class="type">integer</text>
+    
+    <text x="15" y="75" class="field">name</text>
+    <text x="140" y="75" class="type">varchar(50)</text>
+    
+    <text x="15" y="95" class="field">max_weight</text>
+    <text x="140" y="95" class="type">numeric(5,2)</text>
+  </g>
+
+  <!-- ================= TABELA WORKOUTS ================= -->
+  <g transform="translate(50, 320)">
+    <rect width="220" height="130" fill="#1e1e1e" stroke="#333333" stroke-width="2" rx="6"/>
+    <rect width="220" height="30" fill="url(#header-grad)" rx="6"/>
+    <text x="15" y="20" class="table-title">workouts</text>
+    
+    <!-- Kolumny -->
+    <text x="15" y="55" class="field">id <tspan class="key">PK</tspan></text>
+    <text x="140" y="55" class="type">integer</text>
+    
+    <text x="15" y="75" class="field">user_id <tspan class="key">FK</tspan></text>
+    <text x="140" y="75" class="type">integer</text>
+    
+    <text x="15" y="95" class="field">workout_date</text>
+    <text x="140" y="95" class="type">date</text>
+    
+    <text x="15" y="115" class="field">notes</text>
+    <text x="140" y="115" class="type">text</text>
+  </g>
+
+  <!-- ================= TABELA WORKOUT_SETS ================= -->
+  <g transform="translate(370, 320)">
+    <rect width="220" height="150" fill="#1e1e1e" stroke="#333333" stroke-width="2" rx="6"/>
+    <rect width="220" height="30" fill="url(#header-grad)" rx="6"/>
+    <text x="15" y="20" class="table-title">workout_sets (Junction)</text>
+    
+    <!-- Kolumny -->
+    <text x="15" y="55" class="field">id <tspan class="key">PK</tspan></text>
+    <text x="140" y="55" class="type">integer</text>
+    
+    <text x="15" y="75" class="field">workout_id <tspan class="key">FK</tspan></text>
+    <text x="140" y="75" class="type">integer</text>
+    
+    <text x="15" y="95" class="field">exercise_id <tspan class="key">FK</tspan></text>
+    <text x="140" y="95" class="type">integer</text>
+    
+    <text x="15" y="115" class="field">weight</text>
+    <text x="140" y="115" class="type">numeric(6,2)</text>
+    
+    <text x="15" y="135" class="field">reps</text>
+    <text x="140" y="135" class="type">integer</text>
+  </g>
+
+  <!-- ================= TABELA EXERCISES ================= -->
+  <g transform="translate(680, 320)">
+    <rect width="220" height="90" fill="#1e1e1e" stroke="#333333" stroke-width="2" rx="6"/>
+    <rect width="220" height="30" fill="url(#header-grad)" rx="6"/>
+    <text x="15" y="20" class="table-title">exercises</text>
+    
+    <!-- Kolumny -->
+    <text x="15" y="55" class="field">id <tspan class="key">PK</tspan></text>
+    <text x="140" y="55" class="type">integer</text>
+    
+    <text x="15" y="75" class="field">name <tspan class="key">UQ</tspan></text>
+    <text x="140" y="75" class="type">varchar(100)</text>
+  </g>
+
+  <!-- ================= LINIE RELACJI (KONEKTORY) ================= -->
+
+  <!-- Relacja 1:1: users -> user_profiles -->
+  <path d="M 270 110 L 370 110" stroke="#e53935" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+  <text x="280" y="105" class="rel-text">1</text>
+  <text x="355" y="105" class="rel-text">1</text>
+
+  <!-- Relacja 1:N: users -> workouts -->
+  <path d="M 160 200 L 160 320" stroke="#e53935" stroke-width="2" fill="none"/>
+  <text x="145" y="215" class="rel-text">1</text>
+  <text x="145" y="310" class="rel-text">N</text>
+
+  <!-- Relacja 1:N: weight_categories -> user_profiles -->
+  <path d="M 680 105 L 590 105" stroke="#999999" stroke-width="1.5" fill="none"/>
+  <text x="665" y="100" class="rel-text">1</text>
+  <text x="600" y="100" class="rel-text">N</text>
+
+  <!-- Relacja 1:N: workouts -> workout_sets -->
+  <path d="M 270 380 L 370 380" stroke="#e53935" stroke-width="2" fill="none"/>
+  <text x="285" y="375" class="rel-text">1</text>
+  <text x="355" y="375" class="rel-text">N</text>
+
+  <!-- Relacja 1:N: exercises -> workout_sets -->
+  <path d="M 680 375 L 590 375" stroke="#e53935" stroke-width="2" fill="none"/>
+  <text x="665" y="370" class="rel-text">1</text>
+  <text x="600" y="370" class="rel-text">N</text>
+
+</svg>
