@@ -34,6 +34,8 @@ $router->add('GET', '/workouts/create', [WorkoutController::class, 'create']);
 $router->add('POST', '/workouts/create', [WorkoutController::class, 'store']);
 $router->add('GET', '/workout', [WorkoutController::class, 'show']);
 $router->add('POST', '/workout/add-set', [WorkoutController::class, 'addSet']);
+$router->add('POST', '/api/workout/add-set', [WorkoutController::class, 'addSetAsync']);
+$router->add('POST', '/api/workout/delete-set', [WorkoutController::class, 'deleteSetAsync']);
 
 // Profil użytkownika (1:1)
 $router->add('GET', '/profile', [\Controllers\ProfileController::class, 'show']);

@@ -113,4 +113,77 @@ class WorkoutController
         header("Location: /workout?id=" . $workoutId);
         exit;
     }
+
+    // Asynchroniczne dodawanie serii (Fetch API - POST /api/workout/add-set)
+    public function addSetAsync(): void
+    {
+        header('Content-Type: application/json');
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        $workoutId = (int)($input['workout_id'] ?? 0);
+        $exerciseId = (int)($input['exercise_id'] ?? 0);
+        $weight = (float)($input['weight'] ?? 0);
+        $reps = (int)($input['reps'] ?? 0);
+
+        if (!$workoutId || !$exerciseId || $weight <= 0 || $reps <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Nieprawidłowe dane serii.']);
+            return;
+        }
+
+        // Autoryzacja dostępu do treningu
+        $workoutModel = new Workout();
+        if (!$workoutModel->getByIdAndUser($workoutId, $_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Brak uprawnień do edycji tego treningu.']);
+            return;
+        }
+
+        $setModel = new WorkoutSet();
+        $setModel->add($workoutId, $exerciseId, $weight, $reps);
+        $sets = $setModel->getByWorkout($workoutId);
+
+        echo json_encode([
+            'success' => true,
+            'sets' => $sets
+        ]);
+    }
+
+    // Asynchroniczne usuwanie serii (Fetch API - POST /api/workout/delete-set)
+    public function deleteSetAsync(): void
+    {
+        header('Content-Type: application/json');
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $setId = (int)($input['set_id'] ?? 0);
+
+        if (!$setId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Brak ID serii do usunięcia.']);
+            return;
+        }
+
+        $setModel = new WorkoutSet();
+        $set = $setModel->getById($setId);
+
+        if (!$set) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Seria nie istnieje.']);
+            return;
+        }
+
+        // Sprawdzamy czy ten trening należy do zalogowanego użytkownika
+        $workoutModel = new Workout();
+        if (!$workoutModel->getByIdAndUser((int)$set['workout_id'], $_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Brak dostępu.']);
+            return;
+        }
+
+        $setModel->delete($setId);
+
+        echo json_encode([
+            'success' => true
+        ]);
+    }
 }

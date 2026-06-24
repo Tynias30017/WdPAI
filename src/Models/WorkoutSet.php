@@ -38,4 +38,20 @@ class WorkoutSet extends Model
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Usuwa serię o konkretnym ID
+    public function delete(int $setId): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM workout_sets WHERE id = :id");
+        return $stmt->execute([':id' => $setId]);
+    }
+
+    // Pobiera pojedynczą serię po ID
+    public function getById(int $setId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM workout_sets WHERE id = :id");
+        $stmt->execute([':id' => $setId]);
+        $set = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $set ?: null;
+    }
 }
