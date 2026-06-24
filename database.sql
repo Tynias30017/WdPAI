@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 4t9u5nUlmf8byYxwGcwCOKz75gK3bJGrLQO1NBax2Ste8i38wnpW9XQFTmjYY4V
+\restrict wwjwdRE01VVDqi6YFdelLRGHgsecGJqXKyol7hlJJvkuqLOV9ukfVC7IH0EiknR
 
 -- Dumped from database version 15.18
 -- Dumped by pg_dump version 15.18
@@ -336,7 +336,7 @@ COPY public.user_profiles (user_id, first_name, last_name, gender, body_weight, 
 --
 
 COPY public.users (id, email, password_hash, created_at, role) FROM stdin;
-1	qwer@qwer	$2y$10$XinrHUk/E1x4jvdqnf/c8.HuqSLzYat4vepiLw73cEl4IcYgmyQaS	2026-06-05 11:08:47.793976	admin
+1	qwer@qwer	$2y$10$mkSN05SfUV/3nwvCkcek2.xs1el855lcTz4bfJRQ0uNbliGBrrL0G	2026-06-05 11:08:47.793976	admin
 \.
 
 
@@ -525,5 +525,5 @@ ALTER TABLE ONLY public.workouts
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 4t9u5nUlmf8byYxwGcwCOKz75gK3bJGrLQO1NBax2Ste8i38wnpW9XQFTmjYY4V
+\unrestrict wwjwdRE01VVDqi6YFdelLRGHgsecGJqXKyol7hlJJvkuqLOV9ukfVC7IH0EiknR
 
