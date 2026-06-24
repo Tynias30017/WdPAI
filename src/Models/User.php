@@ -10,13 +10,33 @@ class User extends Model
 {
     public function create(string $email, string $passwordHash): bool
     {
-        // Używamy "prepared statements" (przygotowanych zapytań), aby zapobiec SQL Injection!
-        $stmt = $this->db->prepare("INSERT INTO users (email, password_hash) VALUES (:email, :password_hash)");
-        
-        return $stmt->execute([
-            ':email' => $email,
-            ':password_hash' => $passwordHash
-        ]);
+        try {
+            // Rozpoczęcie transakcji
+            $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare("INSERT INTO users (email, password_hash, role) VALUES (:email, :password_hash, 'user') RETURNING id");
+            $stmt->execute([
+                ':email' => $email,
+                ':password_hash' => $passwordHash
+            ]);
+            $userId = (int)$stmt->fetchColumn();
+
+            if (!$userId) {
+                throw new \Exception("Nie udało się utworzyć rekordu użytkownika.");
+            }
+
+            // Tworzymy powiązany profil 1:1 z domyślnymi wartościami (również w tej samej transakcji)
+            $stmtProfile = $this->db->prepare("INSERT INTO user_profiles (user_id, first_name, last_name, gender, body_weight) VALUES (:user_id, '', '', 'male', 0.0)");
+            $stmtProfile->execute([':user_id' => $userId]);
+
+            // Zatwierdzenie transakcji
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $e) {
+            // Wycofanie transakcji w razie błędu
+            $this->db->rollBack();
+            return false;
+        }
     }
 
     public function findByEmail(string $email): ?array

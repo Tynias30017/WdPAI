@@ -35,6 +35,15 @@ $router->add('POST', '/workouts/create', [WorkoutController::class, 'store']);
 $router->add('GET', '/workout', [WorkoutController::class, 'show']);
 $router->add('POST', '/workout/add-set', [WorkoutController::class, 'addSet']);
 
+// Profil użytkownika (1:1)
+$router->add('GET', '/profile', [\Controllers\ProfileController::class, 'show']);
+$router->add('POST', '/profile', [\Controllers\ProfileController::class, 'update']);
+
+// Panel administratora i uprawnienia
+$router->add('GET', '/admin/users', [\Controllers\AdminController::class, 'users']);
+$router->add('POST', '/admin/users/update-role', [\Controllers\AdminController::class, 'updateRole']);
+$router->add('POST', '/admin/users/delete', [\Controllers\AdminController::class, 'deleteUser']);
+
 // Zmienne $_SERVER zawierają dane o żądaniu z przeglądarki
 $uri = parse_url($_SERVER['REQUEST_URI'])['path'];
 $method = $_SERVER['REQUEST_METHOD'];

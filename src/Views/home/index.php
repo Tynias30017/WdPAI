@@ -13,8 +13,12 @@
         <h1><?= htmlspecialchars($title) ?></h1>
         <nav>
             <?php if (isset($_SESSION['user_id'])): ?>
-                <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong></p>
+                <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong> (<?= htmlspecialchars($_SESSION['user_role'] ?? 'user') ?>)</p>
+                <a href="/profile">Mój Profil</a> |
                 <a href="/workouts">Moje Treningi</a> |
+                <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+                    <a href="/admin/users" style="color: #ffeb3b;">Panel Admina</a> |
+                <?php endif; ?>
                 <a href="/logout">Wyloguj się</a>
             <?php else: ?>
                 <a href="/login">Zaloguj się</a> | 
