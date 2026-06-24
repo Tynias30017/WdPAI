@@ -14,12 +14,12 @@ class Database
 
     private function __construct()
     {
-        // Dane do połączenia z PostgreSQL (zmienne środowiskowe Docker)
-        $host = 'db'; // Nazwa usługi bazy danych w docker-compose
-        $port = '5432';
-        $dbname = 'powerlifting_app'; 
-        $user = 'root';   
-        $password = 'rootpassword'; 
+        // Dane do połączenia z PostgreSQL pobierane z konfiguracji
+        $host = Config::get('DB_HOST', 'db');
+        $port = Config::get('DB_PORT', '5432');
+        $dbname = Config::get('DB_DATABASE', 'powerlifting_app'); 
+        $user = Config::get('DB_USERNAME', 'root');   
+        $password = Config::get('DB_PASSWORD', 'rootpassword'); 
 
         $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
 

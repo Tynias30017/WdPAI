@@ -10,6 +10,9 @@ session_start();
 require_once __DIR__ . '/Core/Autoloader.php';
 \Core\Autoloader::register();
 
+// Wczytanie konfiguracji z pliku .env
+\Core\Config::load(__DIR__ . '/.env');
+
 use Core\Router;
 use Controllers\HomeController;
 use Controllers\AuthController;
