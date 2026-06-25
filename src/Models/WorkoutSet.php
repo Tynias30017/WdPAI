@@ -8,19 +8,21 @@ use PDO;
 
 class WorkoutSet extends Model
 {
-    // Dodaje nową serię do treningu
-    public function add(int $workoutId, int $exerciseId, float $weight, int $reps): bool
+    // Dodaje nową serię do treningu z parametrami RPE oraz typem serii
+    public function add(int $workoutId, int $exerciseId, float $weight, int $reps, ?float $rpe = null, string $setType = 'normal'): bool
     {
         $stmt = $this->db->prepare("
-            INSERT INTO workout_sets (workout_id, exercise_id, weight, reps) 
-            VALUES (:workout_id, :exercise_id, :weight, :reps)
+            INSERT INTO workout_sets (workout_id, exercise_id, weight, reps, rpe, set_type) 
+            VALUES (:workout_id, :exercise_id, :weight, :reps, :rpe, :set_type)
         ");
         
         return $stmt->execute([
             ':workout_id' => $workoutId,
             ':exercise_id' => $exerciseId,
             ':weight' => $weight,
-            ':reps' => $reps
+            ':reps' => $reps,
+            ':rpe' => $rpe,
+            ':set_type' => $setType
         ]);
     }
 
@@ -53,5 +55,35 @@ class WorkoutSet extends Model
         $stmt->execute([':id' => $setId]);
         $set = $stmt->fetch(PDO::FETCH_ASSOC);
         return $set ?: null;
+    }
+
+    // Pobiera wykonane serie dla danego ćwiczenia z ostatniego treningu użytkownika (Historia w locie)
+    public function getLastSetsForExercise(int $userId, int $exerciseId, int $currentWorkoutId): array
+    {
+        // Zapytanie CTE wybiera ostatni trening użytkownika (przed bieżącym), na którym wykonywano to ćwiczenie
+        $stmt = $this->db->prepare("
+            WITH last_workout AS (
+                SELECT w.id, w.workout_date
+                FROM workouts w
+                JOIN workout_sets ws ON ws.workout_id = w.id
+                WHERE w.user_id = :user_id 
+                  AND ws.exercise_id = :exercise_id
+                  AND w.id != :current_workout_id
+                ORDER BY w.workout_date DESC, w.created_at DESC
+                LIMIT 1
+            )
+            SELECT ws.weight, ws.reps, ws.rpe, ws.set_type, lw.workout_date
+            FROM workout_sets ws
+            JOIN last_workout lw ON ws.workout_id = lw.id
+            ORDER BY ws.id ASC
+        ");
+        
+        $stmt->execute([
+            ':user_id' => $userId,
+            ':exercise_id' => $exerciseId,
+            ':current_workout_id' => $currentWorkoutId
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

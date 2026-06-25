@@ -129,7 +129,12 @@
                             <?php foreach ($workouts as $workout): ?>
                                 <div class="workout-item">
                                     <div class="workout-info">
-                                        <span class="workout-date">Sesja z dnia: <?= htmlspecialchars($workout['workout_date']) ?></span>
+                                        <span class="workout-date">
+                                            Sesja z dnia: <?= htmlspecialchars($workout['workout_date']) ?>
+                                            <?php if (!empty($workout['name'])): ?>
+                                                • <span style="color: var(--primary-color); font-weight: 600;"><?= htmlspecialchars($workout['name']) ?></span>
+                                            <?php endif; ?>
+                                        </span>
                                         <?php if (!empty($workout['notes'])): ?>
                                             <span class="workout-notes">Notatki: <?= htmlspecialchars($workout['notes']) ?></span>
                                         <?php else: ?>

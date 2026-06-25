@@ -22,17 +22,18 @@ class Workout extends Model
     }
 
     // Tworzy nowy pusty trening i zwraca jego ID
-    public function create(int $userId, string $date, string $notes = ''): int
+    public function create(int $userId, string $date, string $name = '', string $notes = ''): int
     {
         $stmt = $this->db->prepare("
-            INSERT INTO workouts (user_id, workout_date, notes) 
-            VALUES (:user_id, :workout_date, :notes) 
+            INSERT INTO workouts (user_id, workout_date, name, notes) 
+            VALUES (:user_id, :workout_date, :name, :notes) 
             RETURNING id
         ");
         
         $stmt->execute([
             ':user_id' => $userId,
             ':workout_date' => $date,
+            ':name' => $name,
             ':notes' => $notes
         ]);
         

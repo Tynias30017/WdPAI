@@ -61,6 +61,7 @@ class WorkoutController
     public function store(): void
     {
         $date = $_POST['workout_date'] ?? '';
+        $name = trim($_POST['workout_name'] ?? '');
         $notes = trim($_POST['notes'] ?? '');
 
         if (empty($date)) {
@@ -68,7 +69,7 @@ class WorkoutController
         }
 
         $workoutModel = new Workout();
-        $workoutId = $workoutModel->create($_SESSION['user_id'], $date, $notes);
+        $workoutId = $workoutModel->create($_SESSION['user_id'], $date, $name, $notes);
 
         // Po utworzeniu od razu przechodzimy do widoku szczegółów tego treningu!
         header("Location: /workout?id=" . $workoutId);
@@ -115,6 +116,8 @@ class WorkoutController
         $exerciseId = (int)($_POST['exercise_id'] ?? 0);
         $weight = (float)($_POST['weight'] ?? 0);
         $reps = (int)($_POST['reps'] ?? 0);
+        $rpe = isset($_POST['rpe']) && $_POST['rpe'] !== '' ? (float)$_POST['rpe'] : null;
+        $setType = trim($_POST['set_type'] ?? 'normal');
 
         // Ponowna autoryzacja - czy użytkownik ma prawo modyfikować ten trening?
         $workoutModel = new Workout();
@@ -123,7 +126,7 @@ class WorkoutController
         }
 
         $setModel = new WorkoutSet();
-        $setModel->add($workoutId, $exerciseId, $weight, $reps);
+        $setModel->add($workoutId, $exerciseId, $weight, $reps, $rpe, $setType);
 
         // Wracamy na stronę szczegółów treningu
         header("Location: /workout?id=" . $workoutId);
@@ -140,6 +143,8 @@ class WorkoutController
         $exerciseId = (int)($input['exercise_id'] ?? 0);
         $weight = (float)($input['weight'] ?? 0);
         $reps = (int)($input['reps'] ?? 0);
+        $rpe = isset($input['rpe']) && $input['rpe'] !== '' ? (float)$input['rpe'] : null;
+        $setType = trim($input['set_type'] ?? 'normal');
 
         if (!$workoutId || !$exerciseId || $weight <= 0 || $reps <= 0) {
             http_response_code(400);
@@ -156,7 +161,7 @@ class WorkoutController
         }
 
         $setModel = new WorkoutSet();
-        $setModel->add($workoutId, $exerciseId, $weight, $reps);
+        $setModel->add($workoutId, $exerciseId, $weight, $reps, $rpe, $setType);
         $sets = $setModel->getByWorkout($workoutId);
 
         echo json_encode([
@@ -200,6 +205,29 @@ class WorkoutController
 
         echo json_encode([
             'success' => true
+        ]);
+    }
+
+    // Pobieranie serii z ostatniego treningu dla wybranego ćwiczenia (Fetch API - GET /api/exercise/last-workout)
+    public function getLastWorkoutSetsAsync(): void
+    {
+        header('Content-Type: application/json');
+
+        $exerciseId = (int)($_GET['exercise_id'] ?? 0);
+        $workoutId = (int)($_GET['workout_id'] ?? 0);
+
+        if (!$exerciseId || !$workoutId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Brak wymaganych parametrów.']);
+            return;
+        }
+
+        $setModel = new WorkoutSet();
+        $sets = $setModel->getLastSetsForExercise((int)$_SESSION['user_id'], $exerciseId, $workoutId);
+
+        echo json_encode([
+            'success' => true,
+            'sets' => $sets
         ]);
     }
 }

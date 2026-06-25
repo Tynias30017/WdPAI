@@ -26,11 +26,11 @@
         }
         .form-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
+            grid-template-columns: 2fr 1.2fr 1.2fr 1.2fr 1.8fr auto;
             gap: 0.75rem;
             align-items: end;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
@@ -172,6 +172,8 @@
                                     <th>Ćwiczenie</th>
                                     <th>Ciężar</th>
                                     <th>Powtórzenia</th>
+                                    <th style="text-align: center;">RPE</th>
+                                    <th style="text-align: center;">Typ Serii</th>
                                     <th style="width: 80px; text-align: center;">Akcja</th>
                                 </tr>
                             </thead>
@@ -181,6 +183,16 @@
                                         <td><strong style="color: var(--text-color);"><?= htmlspecialchars($set['exercise_name']) ?></strong></td>
                                         <td><span class="badge badge-primary"><?= htmlspecialchars((string)($set['weight'] ?? 0.0)) ?> kg</span></td>
                                         <td><strong><?= htmlspecialchars((string)($set['reps'] ?? 0)) ?></strong> powtórzeń</td>
+                                        <td style="text-align: center;">
+                                            <span class="badge" style="background-color: rgba(245, 158, 11, 0.15); color: var(--warning-color); font-weight: bold;">
+                                                <?= $set['rpe'] ? htmlspecialchars(number_format((float)$set['rpe'], 1)) : '-' ?>
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="badge <?= $set['set_type'] === 'pr' ? 'badge-success' : '' ?>">
+                                                <?= $set['set_type'] === 'warmup' ? 'Rozgrzewka' : ($set['set_type'] === 'backoff' ? 'Zrzutka' : ($set['set_type'] === 'pr' ? '🏆 Rekord' : 'Normalna')) ?>
+                                            </span>
+                                        </td>
                                         <td style="text-align: center;">
                                             <button class="btn-delete-set btn-danger btn-sm" data-id="<?= $set['id'] ?>" style="background-color: #d32f2f;">Usuń</button>
                                         </td>
@@ -214,8 +226,28 @@
                                     <label for="reps">Powtórzenia:</label>
                                     <input type="number" id="reps" name="reps" placeholder="np. 8" required>
                                 </div>
+
+                                <div>
+                                    <label for="rpe">RPE (1-10):</label>
+                                    <input type="number" step="0.5" min="1" max="10" id="rpe" name="rpe" placeholder="Brak">
+                                </div>
+
+                                <div>
+                                    <label for="set_type">Typ serii:</label>
+                                    <select id="set_type" name="set_type" required>
+                                        <option value="normal" selected>Normalna</option>
+                                        <option value="warmup">Rozgrzewkowa</option>
+                                        <option value="backoff">Zrzucana (Back-off)</option>
+                                        <option value="pr">Rekord (PR)</option>
+                                    </select>
+                                </div>
                                 
                                 <button type="submit" class="btn" style="height: 42px;">Dodaj Serię</button>
+                            </div>
+
+                            <!-- Podgląd ostatniego treningu w locie -->
+                            <div id="last-workout-preview" style="display: none; margin-top: 1rem; padding: 0.75rem 1rem; background-color: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px; font-size: 0.85rem; color: var(--text-muted);">
+                                <!-- Będzie ładowane dynamicznie przez JS -->
                             </div>
                         </form>
                     </div>
@@ -241,6 +273,8 @@
             const exerciseId = form.elements['exercise_id'].value;
             const weight = form.elements['weight'].value;
             const reps = form.elements['reps'].value;
+            const rpe = form.elements['rpe'].value;
+            const setType = form.elements['set_type'].value;
 
             try {
                 const response = await fetch('/api/workout/add-set', {
@@ -252,7 +286,9 @@
                         workout_id: parseInt(workoutId),
                         exercise_id: parseInt(exerciseId),
                         weight: parseFloat(weight),
-                        reps: parseInt(reps)
+                        reps: parseInt(reps),
+                        rpe: rpe !== '' ? parseFloat(rpe) : null,
+                        set_type: setType
                     })
                 });
 
@@ -266,8 +302,12 @@
                 if (data.success) {
                     form.elements['weight'].value = '';
                     form.elements['reps'].value = '';
+                    form.elements['rpe'].value = '';
+                    form.elements['set_type'].value = 'normal';
                     renderSets(data.sets);
                     resetAndStartTimer();
+                    // Odśwież podgląd historii, bo ostatni trening mógł się zmienić
+                    fetchLastPerformance();
                 }
             } catch (err) {
                 console.error(err);
@@ -289,10 +329,27 @@
             sets.forEach(set => {
                 const tr = document.createElement('tr');
                 tr.id = `set-row-${set.id}`;
+                
+                const rpeVal = set.rpe ? parseFloat(set.rpe).toFixed(1) : '-';
+                let typeLabel = 'Normalna';
+                let typeClass = '';
+                if (set.set_type === 'warmup') typeLabel = 'Rozgrzewka';
+                if (set.set_type === 'backoff') typeLabel = 'Zrzutka';
+                if (set.set_type === 'pr') {
+                    typeLabel = '🏆 Rekord';
+                    typeClass = 'badge-success';
+                }
+
                 tr.innerHTML = `
                     <td><strong style="color: var(--text-color);">${escapeHtml(set.exercise_name)}</strong></td>
                     <td><span class="badge badge-primary">${parseFloat(set.weight)} kg</span></td>
                     <td><strong>${parseInt(set.reps)}</strong> powtórzeń</td>
+                    <td style="text-align: center;">
+                        <span class="badge" style="background-color: rgba(245, 158, 11, 0.15); color: var(--warning-color); font-weight: bold;">${rpeVal}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge ${typeClass}">${typeLabel}</span>
+                    </td>
                     <td style="text-align: center;">
                         <button class="btn-delete-set btn-danger btn-sm" data-id="${set.id}" style="background-color: #d32f2f;">Usuń</button>
                     </td>
@@ -438,6 +495,54 @@
             timerSeconds += 30;
             updateTimerDisplay();
         });
+
+        // === LOGIKA HISTORII W LOCIE ===
+        const exerciseSelect = document.getElementById('exercise_id');
+        const lastWorkoutPreview = document.getElementById('last-workout-preview');
+
+        async function fetchLastPerformance() {
+            const exerciseId = exerciseSelect.value;
+            const workoutId = form.elements['workout_id'].value;
+            
+            if (!exerciseId) {
+                lastWorkoutPreview.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/exercise/last-workout?exercise_id=${exerciseId}&workout_id=${workoutId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.sets && data.sets.length > 0) {
+                        const date = data.sets[0].workout_date;
+                        let setsHtml = `<strong>Poprzedni trening (${date}):</strong> `;
+                        const setsDesc = data.sets.map((set, idx) => {
+                            let typeSymbol = '';
+                            if (set.set_type === 'warmup') typeSymbol = ' (Rozgrz.)';
+                            if (set.set_type === 'backoff') typeSymbol = ' (Zrz.)';
+                            if (set.set_type === 'pr') typeSymbol = ' (🏆 PR)';
+                            const rpeText = set.rpe ? ` @ RPE ${parseFloat(set.rpe)}` : '';
+                            return `${idx + 1}. ${parseFloat(set.weight)}kg x ${parseInt(set.reps)}${rpeText}${typeSymbol}`;
+                        }).join(', ');
+                        lastWorkoutPreview.innerHTML = setsHtml + setsDesc;
+                        lastWorkoutPreview.style.display = 'block';
+                    } else {
+                        lastWorkoutPreview.innerHTML = '<strong>Poprzedni trening:</strong> Brak danych dla tego ćwiczenia.';
+                        lastWorkoutPreview.style.display = 'block';
+                    }
+                } else {
+                    lastWorkoutPreview.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+                lastWorkoutPreview.style.display = 'none';
+            }
+        }
+
+        exerciseSelect.addEventListener('change', fetchLastPerformance);
+        
+        // Uruchomienie na starcie
+        fetchLastPerformance();
 
         attachDeleteEvents();
     });

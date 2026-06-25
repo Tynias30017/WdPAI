@@ -33,6 +33,11 @@
                 </div>
                 
                 <div>
+                    <label for="workout_name">Nazwa treningu (opcjonalnie):</label>
+                    <input type="text" id="workout_name" name="workout_name" placeholder="np. Wyciskanie - Siła / Dół - Hipertrofia">
+                </div>
+                
+                <div>
                     <label for="notes">Notatki / Samopoczucie (opcjonalnie):</label>
                     <textarea id="notes" name="notes" rows="4" placeholder="np. Trening nóg. Czułem się silny, świetna dynamika w przysiadach..."></textarea>
                 </div>
