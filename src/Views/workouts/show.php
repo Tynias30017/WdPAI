@@ -307,10 +307,7 @@
 
                 const data = await response.json();
                 if (data.success) {
-                    form.elements['weight'].value = '';
-                    form.elements['reps'].value = '';
-                    form.elements['rpe'].value = '';
-                    form.elements['set_type'].value = 'normal';
+                    // Pozostawiamy wartości w polach w celu łatwego dodawania kolejnych identycznych serii (np. 3x5)
                     renderSets(data.sets);
                     resetAndStartTimer();
                     // Odśwież podgląd historii, bo ostatni trening mógł się zmienić
@@ -507,7 +504,7 @@
         const exerciseSelect = document.getElementById('exercise_id');
         const lastWorkoutPreview = document.getElementById('last-workout-preview');
 
-        async function fetchLastPerformance() {
+        async function fetchLastPerformance(autofill = false) {
             const exerciseId = exerciseSelect.value;
             const workoutId = form.elements['workout_id'].value;
             
@@ -533,9 +530,28 @@
                         }).join(', ');
                         lastWorkoutPreview.innerHTML = setsHtml + setsDesc;
                         lastWorkoutPreview.style.display = 'block';
+
+                        // Automatyczne uzupełnienie pól na podstawie ostatniej serii z poprzedniego treningu
+                        if (autofill) {
+                            const lastSet = data.sets[data.sets.length - 1];
+                            if (lastSet) {
+                                form.elements['weight'].value = parseFloat(lastSet.weight);
+                                form.elements['reps'].value = parseInt(lastSet.reps);
+                                form.elements['rpe'].value = lastSet.rpe ? parseFloat(lastSet.rpe) : '';
+                                form.elements['set_type'].value = lastSet.set_type || 'normal';
+                            }
+                        }
                     } else {
                         lastWorkoutPreview.innerHTML = '<strong>Poprzedni trening:</strong> Brak danych dla tego ćwiczenia.';
                         lastWorkoutPreview.style.display = 'block';
+
+                        if (autofill) {
+                            // Czyszczenie pól, jeśli brak historii dla danego ćwiczenia
+                            form.elements['weight'].value = '';
+                            form.elements['reps'].value = '';
+                            form.elements['rpe'].value = '';
+                            form.elements['set_type'].value = 'normal';
+                        }
                     }
                 } else {
                     lastWorkoutPreview.style.display = 'none';
@@ -546,10 +562,10 @@
             }
         }
 
-        exerciseSelect.addEventListener('change', fetchLastPerformance);
+        exerciseSelect.addEventListener('change', () => fetchLastPerformance(true));
         
-        // Uruchomienie na starcie
-        fetchLastPerformance();
+        // Uruchomienie na starcie z autouzupełnianiem
+        fetchLastPerformance(true);
 
         attachDeleteEvents();
     });

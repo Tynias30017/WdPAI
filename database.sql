@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Ru631eojUHCbQj7p7m6abeNGgs11LnfFHePrU3PJqFkIkTgCkXrnRGD91Fv096o
+\restrict diuvkUiGWBmVPqmBHllZcSXGBDMdIJyLV7dbIzHaB2yXJUTp55SYfvjj4RvQM9M
 
 -- Dumped from database version 15.18
 -- Dumped by pg_dump version 15.18
@@ -477,6 +477,23 @@ COPY public.workout_sets (id, workout_id, exercise_id, weight, reps, created_at,
 1	2	2	100.00	5	2026-06-05 11:25:37.857005	\N	normal
 2	3	3	3.50	1	2026-06-25 11:43:42.659984	1.5	normal
 3	3	3	0.50	5	2026-06-25 11:44:16.673451	6.0	normal
+4	5	1	100.00	5	2026-06-25 11:59:30.747611	7.5	pr
+5	5	1	100.00	5	2026-06-25 11:59:30.747611	8.0	normal
+6	5	2	70.00	5	2026-06-25 11:59:30.747611	7.0	normal
+7	5	2	70.00	5	2026-06-25 11:59:30.747611	7.5	normal
+8	5	3	120.00	5	2026-06-25 11:59:30.747611	7.0	pr
+9	6	1	105.00	5	2026-06-25 11:59:30.747611	8.0	pr
+10	6	2	72.50	5	2026-06-25 11:59:30.747611	8.0	normal
+11	6	3	125.00	5	2026-06-25 11:59:30.747611	7.5	pr
+12	7	1	110.00	5	2026-06-25 11:59:30.747611	8.5	pr
+13	7	2	75.00	5	2026-06-25 11:59:30.747611	8.5	normal
+14	7	3	130.00	5	2026-06-25 11:59:30.747611	8.0	pr
+15	8	1	115.00	3	2026-06-25 11:59:30.747611	8.5	normal
+16	8	2	77.50	3	2026-06-25 11:59:30.747611	9.0	normal
+17	8	3	135.00	3	2026-06-25 11:59:30.747611	8.5	normal
+18	9	1	120.00	1	2026-06-25 11:59:30.747611	9.5	normal
+19	9	2	82.50	1	2026-06-25 11:59:30.747611	10.0	normal
+20	9	3	145.00	1	2026-06-25 11:59:30.747611	9.5	normal
 \.
 
 
@@ -488,6 +505,12 @@ COPY public.workouts (id, user_id, workout_date, notes, created_at, name) FROM s
 1	1	2026-06-05	jest pompa	2026-06-05 11:18:49.074809	\N
 2	1	2026-06-05	2 trening	2026-06-05 11:24:49.620133	\N
 3	1	2026-06-25		2026-06-25 11:43:17.646999	
+4	1	2026-06-25		2026-06-25 11:52:28.424182	qwerty
+5	1	2026-06-10	Lekki powrót po przerwie	2026-06-25 11:59:30.747611	Dzień A - Rozpoczęcie Cyklu
+6	1	2026-06-14	Dobry feeling, ciężary idą w górę	2026-06-25 11:59:30.747611	Dzień B - Siła
+7	1	2026-06-17	Wyciskanie poszło gładko	2026-06-25 11:59:30.747611	Dzień A - Średni
+8	1	2026-06-20	Podejście pod nowe RPE	2026-06-25 11:59:30.747611	Dzień B - Ciężki
+9	1	2026-06-23	Próba PR przed końcem miesiąca	2026-06-25 11:59:30.747611	Dzień A - Test Maxów
 \.
 
 
@@ -516,14 +539,14 @@ SELECT pg_catalog.setval('public.weight_categories_id_seq', 8, true);
 -- Name: workout_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.workout_sets_id_seq', 3, true);
+SELECT pg_catalog.setval('public.workout_sets_id_seq', 20, true);
 
 
 --
 -- Name: workouts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.workouts_id_seq', 3, true);
+SELECT pg_catalog.setval('public.workouts_id_seq', 9, true);
 
 
 --
@@ -648,5 +671,5 @@ ALTER TABLE ONLY public.workouts
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Ru631eojUHCbQj7p7m6abeNGgs11LnfFHePrU3PJqFkIkTgCkXrnRGD91Fv096o
+\unrestrict diuvkUiGWBmVPqmBHllZcSXGBDMdIJyLV7dbIzHaB2yXJUTp55SYfvjj4RvQM9M
 

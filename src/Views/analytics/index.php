@@ -206,14 +206,17 @@
         <div class="main-content">
             
             <header class="top-bar">
-                <h2>Statystyki i Wykresy</h2>
                 <div class="user-badge">
                     <span>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong></span>
                     <div class="user-avatar"><?= strtoupper(substr($_SESSION['user_email'], 0, 1)) ?></div>
                 </div>
             </header>
 
-            <main style="padding: 1.5rem 0;">
+            <main>
+                <div style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em;">Statystyki i Wykresy</h2>
+                    <p style="color: var(--text-muted);">Śledź swoje rekordy życiowe (PR) i analizuj progresję siły oraz objętości.</p>
+                </div>
                 
                 <!-- Wyliczenia trójbojowe - top 3 główne boje -->
                 <div class="stats-summary">
@@ -326,11 +329,11 @@
                                                     </div>
                                                 </td>
                                                 <td style="text-align: right; font-weight: bold; color: var(--text-color);">
-                                                    <?= parseFloat($record['max_weight_lifted']) ?> kg
+                                                    <?= (float)$record['max_weight_lifted'] ?> kg
                                                 </td>
                                                 <td style="text-align: right;">
                                                     <span class="badge record-badge">
-                                                        <?= parseFloat($record['max_calculated_1rm']) ?> kg
+                                                        <?= (float)$record['max_calculated_1rm'] ?> kg
                                                     </span>
                                                 </td>
                                             </tr>
