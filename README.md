@@ -133,6 +133,49 @@ Baza spełnia rygorystyczne wymagania projektowe:
 
 ---
 
+## 🖼️ Zrzuty Ekranu Aplikacji (Screenshots)
+
+### Wersja Desktopowa (Komputerowa)
+
+1. **Pulpit (Dashboard):** Ekran główny prezentujący oficjalne kategorie wagowe IPF oraz szybki start dla zalogowanych.
+   ![Pulpit](screenshots/Untitled.png)
+
+2. **Kreator Treningu:** Zaawansowany dziennik umożliwiający asynchroniczne logowanie serii, z automatycznym czasem odpoczynku i podglądem historii poprzedniego treningu.
+   ![Kreator Treningu](screenshots/Untitled%20(1).png)
+
+3. **Statystyki i Wykresy:** Dynamiczne wykresy postępów (szacowany 1RM / objętość) rysowane w SVG przez czysty JS oraz osobiste rekordy PR pobierane z widoku bazodanowego.
+   ![Statystyki i Analizy](screenshots/Untitled%20(2).png)
+
+4. **Baza Ćwiczeń (Katalog):** Katalog ćwiczeń trójbojowych z asynchronicznym wyszukiwaniem i filtrowaniem po kategoriach.
+   ![Baza Ćwiczeń](screenshots/Untitled%20(3).png)
+
+5. **Mój Profil:** Panel zarządzania danymi zawodnika, gdzie waga ciała automatycznie wyznacza kategorię IPF (przez wyzwalacz bazy).
+   ![Mój Profil](screenshots/Untitled%20(4).png)
+
+6. **Panel Administratora:** Zarządzanie kontami użytkowników, edycja ról oraz bezpieczne usuwanie użytkowników.
+   ![Panel Administratora](screenshots/Untitled%20(5).png)
+
+### Wersja Mobilna (Smartfony - Responsywność RWD)
+
+Aplikacja mobilna posiada **podążający dolny toolbar (pasek nawigacji) z ikonami SVG**, co zapobiega ucinaniu linków i przypomina natywną aplikację.
+
+7. **Profil i dolna nawigacja:** Uruchomiony profil w widoku na telefonie komórkowym.
+   ![Profil Mobilny](screenshots/Untitled%20(6).png)
+
+8. **Kreator Treningu:** Dziennik treningowy w wersji na wąskim ekranie.
+   ![Kreator Treningu Mobilny](screenshots/Untitled%20(7).png)
+
+9. **Wykresy i Statystyki:** Prezentacja postępów i rekordów PR na telefonie.
+   ![Statystyki Mobilne](screenshots/Untitled%20(8).png)
+
+10. **Katalog Ćwiczeń:** Responsywny filtr bazy ruchów.
+    ![Baza Ćwiczeń Mobilna](screenshots/Untitled%20(9).png)
+
+11. **Panel Admina:** Tabela użytkowników w wersji RWD.
+    ![Panel Admina Mobilny](screenshots/Untitled%20(10).png)
+
+---
+
 ## 🚦 Uruchamianie Testów
 
 ### 1. Testy Jednostkowe (PHPUnit)
@@ -146,6 +189,19 @@ Uruchom zewnętrzny skrypt testów integracyjnych badający kody statusów HTTP 
 ```bash
 ./run_integration_tests.sh
 ```
+
+---
+
+## 🔒 Security Bingo (Bezpieczeństwo Aplikacji)
+
+Aplikacja została zabezpieczona przed najczęstszymi podatnościami bezpieczeństwa (OWASP Top 10):
+
+* **SQL Injection (SQLi):** Wszelkie operacje bazodanowe są realizowane przy użyciu parametrów bindowanych (`prepare` i `execute`) w bibliotece PDO. W kodzie nie występuje bezpośrednie łączenie ciągów znaków (SQL string concatenation) z danymi użytkownika.
+* **Cross-Site Scripting (XSS):** Wszelkie dane wprowadzane przez użytkownika są zabezpieczane przed wyświetleniem za pomocą funkcji `htmlspecialchars()` (funkcja formatowania wywoływana w widokach chroni przed wykonywaniem wstrzykniętego kodu JS w przeglądarce).
+* **Bezpieczne haszowanie haseł:** Do szyfrowania haseł użytkowników wykorzystywana jest silna, asymetryczna funkcja kryptograficzna `password_hash()` z algorytmem **bcrypt** (domyślnym w PHP 8.2), a logowanie opiera się na bezpiecznej weryfikacji przez `password_verify()`.
+* **Utrzymanie sesji i autoryzacja:** Stan zalogowania użytkownika jest zapisywany w bezpiecznej sesji PHP (`session_start()`). Po wylogowaniu sesja jest całkowicie niszczona (`session_destroy()`).
+* **Kontrola Dostępu (Broken Access Control):** Kontrolery (np. `AdminController`, `WorkoutController`, `AnalyticsController`) weryfikują tożsamość użytkownika na poziomie konstruktora lub metod akcji. Próba dostępu do cudzych treningów lub tras administratora bez uprawnień wywołuje wyjątek globalnie przechwytywany i zwraca stronę błędu **403 Forbidden** lub **401 Unauthorized**.
+* **Integralność i transakcyjność bazodanowa:** Transakcje SQL o odpowiednim poziomie izolacji dbają o zachowanie spójności bazodanowej przy rejestracji użytkownika oraz usuwaniu kont.
 
 ---
 
