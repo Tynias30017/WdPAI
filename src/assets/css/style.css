@@ -139,43 +139,40 @@ body {
     border: 2px solid var(--border-color);
 }
 
-/* Mobilny Pasek Nawigacji (widoczny tylko na małych ekranach) */
+/* Mobilny Pasek Nawigacji (Dolny, podążający Toolbar z ikonami) */
 .mobile-nav {
     display: none;
-    background-color: var(--bg-darker);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem;
-    justify-content: space-between;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: rgba(18, 18, 18, 0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color);
+    padding: 0 0.5rem;
+    justify-content: space-around;
     align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.mobile-nav-logo {
+.mobile-nav-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--text-color);
-    text-decoration: none;
-}
-
-.mobile-nav-links {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.mobile-nav-links a {
+    justify-content: center;
     color: var(--text-muted);
     text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.35rem 0.6rem;
-    border-radius: 4px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
 }
 
-.mobile-nav-links a.active {
+.mobile-nav-item:hover, .mobile-nav-item.active {
     color: var(--primary-color);
-    background-color: rgba(239, 68, 68, 0.1);
+    background-color: rgba(229, 57, 53, 0.08);
 }
 
 /* Główny kontener treści */
@@ -524,7 +521,11 @@ tr:last-child td {
     }
 
     .mobile-nav {
-        display: flex; /* Pokazujemy pasek nawigacji na górze */
+        display: flex; /* Pokazujemy dolny pasek na urządzeniach mobilnych */
+    }
+
+    body {
+        padding-bottom: 75px !important; /* Spacing dla dolnego paska nawigacji */
     }
 
     .workout-container {
@@ -544,14 +545,5 @@ tr:last-child td {
 @media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .mobile-nav-links {
-        gap: 0.25rem;
-    }
-    
-    .mobile-nav-links a {
-        padding: 0.25rem 0.4rem;
-        font-size: 0.75rem;
     }
 }
