@@ -80,9 +80,17 @@ Baza spełnia rygorystyczne wymagania projektowe:
   * **1:1:** Powiązanie `users` z `user_profiles` za pomocą klucza `user_id`.
   * **1:N:** Powiązanie `users` z `workouts`.
   * **N:M:** Powiązanie `workouts` z `exercises` poprzez tabelę asocjacyjną `workout_sets`.
-* **Widok 1 (`user_training_stats`):** Łączy 5 tabel i wyznacza statystyki sumaryczne użytkowników (objętość treningowa, rekordy ciężaru, ilość treningów).
-* **Widok 2 (`exercise_records`):** Złącza tabele w celu wyznaczenia rekordów osobistych (PR) użytkowników dla konkretnych ćwiczeń.
-* **Funkcja i Wyzwalacz (`trigger_determine_weight_category`):** Wyzwalacz `BEFORE INSERT OR UPDATE ON user_profiles` wywołuje funkcję, która automatycznie przelicza i przypisuje odpowiednią kategorię wagową IPF na podstawie aktualnej wagi ciała.
+* **Widoki:**
+  * **`user_training_stats`**: Łączy 5 tabel i wyznacza statystyki sumaryczne użytkowników (objętość treningowa, rekordy ciężaru, ilość treningów).
+  * **`exercise_records`**: Złącza tabele w celu wyznaczenia rekordów osobistych (PR) użytkowników dla konkretnych ćwiczeń.
+  * **`workout_summaries`**: Nowy widok złączający tabele w celu generowania zagregowanych podsumowań każdego treningu (objętość, liczba ćwiczeń, najlepszy wynik).
+  * **`user_exercise_personal_records`**: Nowy widok złączający tabele w celu pobierania osobistych rekordów (max ciężar i max 1RM) per użytkownik i ćwiczenie.
+* **Funkcje bazodanowe (FUNCTION):**
+  * **`determine_weight_category()`**: Wyznacza odpowiednią kategorię wagową IPF na podstawie wagi ciała.
+  * **`calculate_epley_1rm(weight, reps)`**: Dynamicznie wylicza szacowany 1RM (maksimum na jedno powtórzenie) na podstawie wzoru Epleya.
+* **Wyzwalacze (TRIGGER):**
+  * **`trigger_determine_weight_category`**: Automatycznie przypisuje kategorię wagową przy wstawianiu lub edycji profilu użytkownika.
+  * **`trigger_mark_pr`**: Uruchamiany przed wstawieniem serii do tabeli `workout_sets`. Automatycznie sprawdza, czy nowa seria bije dotychczasowy rekord szacowanego 1RM użytkownika dla danego ćwiczenia i, jeśli tak, oznacza typ serii (`set_type`) jako `pr`.
 * **Transakcje bazodanowe:** Zastosowane przy rejestracji użytkownika (jednoczesne bezpieczne dodanie konta i profilu 1:1) oraz usuwaniu konta (zabezpieczenie spójności).
 
 ---
@@ -100,11 +108,18 @@ Baza spełnia rygorystyczne wymagania projektowe:
 
 ### 3. CRUD i asynchroniczny Fetch API (Treningi i Serie)
 * Przejdź do **Moje Treningi** (`/workouts`) i kliknij **Dodaj nowy trening** (`/workouts/create`).
-* Wprowadź datę treningu i kliknij zapisz. Zostaniesz przekierowany do szczegółów treningu (`/workout?id=X`).
-* Dodaj nową serię (np. Martwy ciąg, 150 kg, 5 powtórzeń). Seria zostanie dodana **asynchronicznie (Fetch API)** – pojawi się w tabeli bez przeładowania całej strony!
+* Wprowadź nazwę treningu, datę i kliknij zapisz. Zostaniesz przekierowany do szczegółów treningu (`/workout?id=X`).
+* Wybierz ćwiczenie (z katalogu). Zauważ sekcję **Poprzedni trening (Historia w locie)** – asynchronicznie załaduje ona Twoje serie z ostatniej sesji tego ćwiczenia, pomagając zaplanować aktualną sesję!
+* Dodaj nową serię (np. Martwy ciąg, 150 kg, 5 powtórzeń, RPE 9, Typ serii: Normalna). Seria zostanie dodana **asynchronicznie (Fetch API)** – pojawi się w tabeli i odświeży podgląd historii bez przeładowania całej strony!
 * Kliknij przycisk **Usuń** przy danej serii. Seria zostanie usunięta asynchronicznie, a wiersz zniknie z tabeli.
 
-### 4. Uprawnienia użytkowników (Role i Panel Admina)
+### 4. Wykresy Postępów i Rekordy (Analizy)
+* Przejdź do podstrony **Statystyki & Analizy** (`/analytics`).
+* Zobacz podsumowanie swoich maksymalnych wyników w bojach trójbojowych oraz sumę trójbojową.
+* W sekcji wykresu wybierz ćwiczenie z listy rozwijanej. Asynchronicznie załaduje się interaktywny wykres liniowy (wygenerowany dynamicznie w czystym SVG przez JS) przedstawiający progresję 1RM lub całkowitej objętości treningowej w czasie.
+* Zobacz tabelę z osobistymi rekordami (PR) generowaną w oparciu o widok bazodanowy `user_exercise_personal_records`.
+
+### 5. Uprawnienia użytkowników (Role i Panel Admina)
 * Użytkownik o domyślnej roli (`user`) nie ma dostępu do panelu administratora. Wejście pod `/admin/users` z poziomu konta użytkownika wyświetli dedykowaną stronę błędu **403 Brak uprawnień**.
 * Przejdź do bazy danych lub zaloguj się na domyślne konto administratora:
   * **Email:** `qwer@qwer`
@@ -112,7 +127,7 @@ Baza spełnia rygorystyczne wymagania projektowe:
 * Jako administrator zobaczysz w nagłówku link **Panel Admina** (`/admin/users`).
 * W panelu admina możesz zmieniać role innych użytkowników (z `user` na `admin` i odwrotnie) oraz usuwać ich konta (akcja kaskadowa `ON DELETE CASCADE` automatycznie usunie ich profile, treningi oraz serie).
 
-### 5. Globalna obsługa błędów
+### 6. Globalna obsługa błędów
 * Wpisanie nieistniejącego adresu (np. `/nieistnieje`) wyświetli dedykowaną stronę **404 Nie znaleziono strony**.
 * Próba wywołania akcji bez autoryzacji wyświetli stronę błędu lub przekieruje na logowanie.
 
@@ -121,7 +136,7 @@ Baza spełnia rygorystyczne wymagania projektowe:
 ## 🚦 Uruchamianie Testów
 
 ### 1. Testy Jednostkowe (PHPUnit)
-Uruchom testy jednostkowe klas `Config` oraz `Router` wewnątrz kontenera:
+Uruchom testy jednostkowe klas `Config`, `Router` oraz `Exercise` wewnątrz kontenera:
 ```bash
 docker exec powerlifting_web php /var/www/html/phpunit.phar --bootstrap /var/www/html/tests/bootstrap.php /var/www/html/tests
 ```
