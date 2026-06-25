@@ -86,4 +86,41 @@ class WorkoutSet extends Model
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Pobiera dane historyczne postępów (ciężar, 1RM, objętość) dla danego ćwiczenia i użytkownika
+    public function getProgressionData(int $userId, int $exerciseId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                w.workout_date,
+                COALESCE(w.name, '') AS workout_name,
+                MAX(ws.weight) AS max_weight,
+                MAX(public.calculate_epley_1rm(ws.weight, ws.reps)) AS max_1rm,
+                SUM(ws.weight * ws.reps) AS total_volume
+            FROM workout_sets ws
+            JOIN workouts w ON ws.workout_id = w.id
+            WHERE w.user_id = :user_id AND ws.exercise_id = :exercise_id
+            GROUP BY w.id, w.workout_date, w.name, w.created_at
+            ORDER BY w.workout_date ASC, w.created_at ASC
+        ");
+        
+        $stmt->execute([
+            ':user_id' => $userId,
+            ':exercise_id' => $exerciseId
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Pobiera rekordy osobiste dla wszystkich ćwiczeń użytkownika (z widoku user_exercise_personal_records)
+    public function getPersonalRecords(int $userId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM public.user_exercise_personal_records
+            WHERE user_id = :user_id
+            ORDER BY max_calculated_1rm DESC
+        ");
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

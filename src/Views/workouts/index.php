@@ -19,6 +19,8 @@
             <a href="/">Pulpit</a>
             <a href="/workouts" class="active">Treningi</a>
             <a href="/profile">Profil</a>
+            <a href="/analytics">Statystyki</a>
+            <a href="/exercises">Katalog</a>
             <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
                 <a href="/admin/users" style="color: #facc15;">Admin</a>
             <?php endif; ?>
@@ -52,6 +54,18 @@
                     <a href="/profile">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Mój Profil
+                    </a>
+                </li>
+                <li>
+                    <a href="/analytics">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        Statystyki & Analizy
+                    </a>
+                </li>
+                <li>
+                    <a href="/exercises">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        Baza Ćwiczeń
                     </a>
                 </li>
                 <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>

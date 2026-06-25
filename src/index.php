@@ -41,6 +41,10 @@ $router->add('POST', '/api/workout/add-set', [WorkoutController::class, 'addSetA
 $router->add('POST', '/api/workout/delete-set', [WorkoutController::class, 'deleteSetAsync']);
 $router->add('GET', '/api/exercise/last-workout', [WorkoutController::class, 'getLastWorkoutSetsAsync']);
 
+// Statystyki i analizy
+$router->add('GET', '/analytics', [\Controllers\AnalyticsController::class, 'index']);
+$router->add('GET', '/api/analytics/chart', [\Controllers\AnalyticsController::class, 'getChartData']);
+
 // Profil użytkownika (1:1)
 $router->add('GET', '/profile', [\Controllers\ProfileController::class, 'show']);
 $router->add('POST', '/profile', [\Controllers\ProfileController::class, 'update']);

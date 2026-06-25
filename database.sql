@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict wwjwdRE01VVDqi6YFdelLRGHgsecGJqXKyol7hlJJvkuqLOV9ukfVC7IH0EiknR
+\restrict Ru631eojUHCbQj7p7m6abeNGgs11LnfFHePrU3PJqFkIkTgCkXrnRGD91Fv096o
 
 -- Dumped from database version 15.18
 -- Dumped by pg_dump version 15.18
@@ -19,6 +19,27 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: calculate_epley_1rm(numeric, integer); Type: FUNCTION; Schema: public; Owner: root
+--
+
+CREATE FUNCTION public.calculate_epley_1rm(weight numeric, reps integer) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF reps = 1 THEN
+        RETURN weight;
+    ELSIF reps <= 0 THEN
+        RETURN 0;
+    ELSE
+        RETURN ROUND(weight * (1.0 + reps::numeric / 30.0), 2);
+    END IF;
+END;
+$$;
+
+
+ALTER FUNCTION public.calculate_epley_1rm(weight numeric, reps integer) OWNER TO root;
+
+--
 -- Name: determine_weight_category(); Type: FUNCTION; Schema: public; Owner: root
 --
 
@@ -28,6 +49,45 @@ CREATE FUNCTION public.determine_weight_category() RETURNS trigger
 
 
 ALTER FUNCTION public.determine_weight_category() OWNER TO root;
+
+--
+-- Name: mark_pr_on_set_insert(); Type: FUNCTION; Schema: public; Owner: root
+--
+
+CREATE FUNCTION public.mark_pr_on_set_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    v_user_id INTEGER;
+    v_max_prev_1rm NUMERIC;
+    v_current_1rm NUMERIC;
+BEGIN
+    -- Pobierz user_id dla danego treningu
+    SELECT user_id INTO v_user_id FROM workouts WHERE id = NEW.workout_id;
+    
+    -- Oblicz 1RM dla nowej serii
+    v_current_1rm := public.calculate_epley_1rm(NEW.weight, NEW.reps);
+    
+    -- Znajdź maksymalny poprzedni 1RM dla tego ćwiczenia u tego użytkownika
+    SELECT COALESCE(MAX(public.calculate_epley_1rm(ws.weight, ws.reps)), 0)
+    INTO v_max_prev_1rm
+    FROM workout_sets ws
+    JOIN workouts w ON ws.workout_id = w.id
+    WHERE w.user_id = v_user_id 
+      AND ws.exercise_id = NEW.exercise_id
+      AND ws.id != COALESCE(NEW.id, -1);
+      
+    -- Jeśli nowy 1RM jest większy od poprzedniego rekordu (i większy od 0), ustaw set_type na 'pr'
+    IF v_current_1rm > v_max_prev_1rm AND v_current_1rm > 0 THEN
+        NEW.set_type := 'pr';
+    END IF;
+    
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.mark_pr_on_set_insert() OWNER TO root;
 
 SET default_tablespace = '';
 
@@ -39,7 +99,10 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.exercises (
     id integer NOT NULL,
-    name character varying(100) NOT NULL
+    name character varying(100) NOT NULL,
+    muscle_group character varying(50),
+    equipment_type character varying(50),
+    category character varying(50) DEFAULT 'accessory'::character varying
 );
 
 
@@ -86,7 +149,9 @@ CREATE TABLE public.workout_sets (
     exercise_id integer NOT NULL,
     weight numeric(6,2) NOT NULL,
     reps integer NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    rpe numeric(3,1),
+    set_type character varying(20) DEFAULT 'normal'::character varying
 );
 
 
@@ -101,7 +166,8 @@ CREATE TABLE public.workouts (
     user_id integer NOT NULL,
     workout_date date NOT NULL,
     notes text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    name character varying(100)
 );
 
 
@@ -150,6 +216,26 @@ ALTER TABLE public.exercises_id_seq OWNER TO root;
 
 ALTER SEQUENCE public.exercises_id_seq OWNED BY public.exercises.id;
 
+
+--
+-- Name: user_exercise_personal_records; Type: VIEW; Schema: public; Owner: root
+--
+
+CREATE VIEW public.user_exercise_personal_records AS
+ SELECT w.user_id,
+    ws.exercise_id,
+    e.name AS exercise_name,
+    e.category AS exercise_category,
+    max(ws.weight) AS max_weight_lifted,
+    max(public.calculate_epley_1rm(ws.weight, ws.reps)) AS max_calculated_1rm,
+    count(ws.id) AS total_sets_performed
+   FROM ((public.workout_sets ws
+     JOIN public.workouts w ON ((ws.workout_id = w.id)))
+     JOIN public.exercises e ON ((ws.exercise_id = e.id)))
+  GROUP BY w.user_id, ws.exercise_id, e.name, e.category;
+
+
+ALTER TABLE public.user_exercise_personal_records OWNER TO root;
 
 --
 -- Name: weight_categories; Type: TABLE; Schema: public; Owner: root
@@ -255,6 +341,28 @@ ALTER SEQUENCE public.workout_sets_id_seq OWNED BY public.workout_sets.id;
 
 
 --
+-- Name: workout_summaries; Type: VIEW; Schema: public; Owner: root
+--
+
+CREATE VIEW public.workout_summaries AS
+ SELECT w.id AS workout_id,
+    w.user_id,
+    u.email AS user_email,
+    w.name AS workout_name,
+    w.workout_date,
+    count(DISTINCT ws.exercise_id) AS total_exercises,
+    count(ws.id) AS total_sets,
+    COALESCE(sum((ws.weight * (ws.reps)::numeric)), (0)::numeric) AS total_tonnage,
+    COALESCE(max(public.calculate_epley_1rm(ws.weight, ws.reps)), (0)::numeric) AS best_1rm_in_workout
+   FROM ((public.workouts w
+     JOIN public.users u ON ((w.user_id = u.id)))
+     LEFT JOIN public.workout_sets ws ON ((w.id = ws.workout_id)))
+  GROUP BY w.id, w.user_id, u.email, w.name, w.workout_date;
+
+
+ALTER TABLE public.workout_summaries OWNER TO root;
+
+--
 -- Name: workouts_id_seq; Type: SEQUENCE; Schema: public; Owner: root
 --
 
@@ -315,10 +423,15 @@ ALTER TABLE ONLY public.workouts ALTER COLUMN id SET DEFAULT nextval('public.wor
 -- Data for Name: exercises; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-COPY public.exercises (id, name) FROM stdin;
-1	Przysiad ze sztangą
-2	Wyciskanie leżąc
-3	Martwy ciąg
+COPY public.exercises (id, name, muscle_group, equipment_type, category) FROM stdin;
+1	Przysiad ze sztangą	Nogi	Sztanga	main
+2	Wyciskanie leżąc	Klatka piersiowa	Sztanga	main
+3	Martwy ciąg	Plecy	Sztanga	main
+4	Wznosy bokiem	Barki	Hantle	accessory
+5	Uginanie ramion z hantlami	Biceps	Hantle	accessory
+6	Prostowanie na wyciagu	Triceps	Wyciag	accessory
+7	Podciaganie na drazku	Plecy	Masa ciala	accessory
+8	Rozpietki na maszynie	Klatka piersiowa	Maszyna	accessory
 \.
 
 
@@ -360,8 +473,10 @@ COPY public.weight_categories (id, name, max_weight) FROM stdin;
 -- Data for Name: workout_sets; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-COPY public.workout_sets (id, workout_id, exercise_id, weight, reps, created_at) FROM stdin;
-1	2	2	100.00	5	2026-06-05 11:25:37.857005
+COPY public.workout_sets (id, workout_id, exercise_id, weight, reps, created_at, rpe, set_type) FROM stdin;
+1	2	2	100.00	5	2026-06-05 11:25:37.857005	\N	normal
+2	3	3	3.50	1	2026-06-25 11:43:42.659984	1.5	normal
+3	3	3	0.50	5	2026-06-25 11:44:16.673451	6.0	normal
 \.
 
 
@@ -369,9 +484,10 @@ COPY public.workout_sets (id, workout_id, exercise_id, weight, reps, created_at)
 -- Data for Name: workouts; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-COPY public.workouts (id, user_id, workout_date, notes, created_at) FROM stdin;
-1	1	2026-06-05	jest pompa	2026-06-05 11:18:49.074809
-2	1	2026-06-05	2 trening	2026-06-05 11:24:49.620133
+COPY public.workouts (id, user_id, workout_date, notes, created_at, name) FROM stdin;
+1	1	2026-06-05	jest pompa	2026-06-05 11:18:49.074809	\N
+2	1	2026-06-05	2 trening	2026-06-05 11:24:49.620133	\N
+3	1	2026-06-25		2026-06-25 11:43:17.646999	
 \.
 
 
@@ -379,7 +495,7 @@ COPY public.workouts (id, user_id, workout_date, notes, created_at) FROM stdin;
 -- Name: exercises_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.exercises_id_seq', 3, true);
+SELECT pg_catalog.setval('public.exercises_id_seq', 8, true);
 
 
 --
@@ -400,14 +516,14 @@ SELECT pg_catalog.setval('public.weight_categories_id_seq', 8, true);
 -- Name: workout_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.workout_sets_id_seq', 1, true);
+SELECT pg_catalog.setval('public.workout_sets_id_seq', 3, true);
 
 
 --
 -- Name: workouts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.workouts_id_seq', 2, true);
+SELECT pg_catalog.setval('public.workouts_id_seq', 3, true);
 
 
 --
@@ -482,6 +598,13 @@ CREATE TRIGGER trigger_determine_weight_category BEFORE INSERT OR UPDATE ON publ
 
 
 --
+-- Name: workout_sets trigger_mark_pr; Type: TRIGGER; Schema: public; Owner: root
+--
+
+CREATE TRIGGER trigger_mark_pr BEFORE INSERT OR UPDATE ON public.workout_sets FOR EACH ROW EXECUTE FUNCTION public.mark_pr_on_set_insert();
+
+
+--
 -- Name: user_profiles user_profiles_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: root
 --
 
@@ -525,5 +648,5 @@ ALTER TABLE ONLY public.workouts
 -- PostgreSQL database dump complete
 --
 
-\unrestrict wwjwdRE01VVDqi6YFdelLRGHgsecGJqXKyol7hlJJvkuqLOV9ukfVC7IH0EiknR
+\unrestrict Ru631eojUHCbQj7p7m6abeNGgs11LnfFHePrU3PJqFkIkTgCkXrnRGD91Fv096o
 

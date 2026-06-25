@@ -78,6 +78,8 @@
                 <p>Zalogowany jako: <strong><?= htmlspecialchars($_SESSION['user_email']) ?></strong> (<?= htmlspecialchars($_SESSION['user_role'] ?? 'user') ?>)</p>
                 <a href="/profile">Mój Profil</a>
                 <a href="/workouts">Moje Treningi</a>
+                <a href="/analytics">Statystyki</a>
+                <a href="/exercises">Baza Ćwiczeń</a>
                 <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
                     <a href="/admin/users" style="color: #facc15;">Panel Admina</a>
                 <?php endif; ?>

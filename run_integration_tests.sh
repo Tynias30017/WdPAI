@@ -41,7 +41,13 @@ check_status "$BASE_URL/admin/users" 302 "Chroniona trasa /admin/users (Brak aut
 # 6. Dostęp do bazy ćwiczeń bez autoryzacji (Powinno przekierować na logowanie - kod 302)
 check_status "$BASE_URL/exercises" 302 "Chroniona trasa /exercises (Brak autoryzacji -> Przekierowanie)"
 
-# 7. Nieistniejący zasób (Globalny router powinien zgłosić kod 404)
+# 7. Dostęp do podstrony statystyk bez autoryzacji (Powinno przekierować na logowanie - kod 302)
+check_status "$BASE_URL/analytics" 302 "Chroniona trasa /analytics (Brak autoryzacji -> Przekierowanie)"
+
+# 8. Dostęp do API wykresów bez autoryzacji (Powinno przekierować na logowanie - kod 302)
+check_status "$BASE_URL/api/analytics/chart?exercise_id=1" 302 "Chroniona trasa /api/analytics/chart (Brak autoryzacji -> Przekierowanie)"
+
+# 9. Nieistniejący zasób (Globalny router powinien zgłosić kod 404)
 check_status "$BASE_URL/non-existent-endpoint-test" 404 "Nieistniejący zasób (Strona błędu 404)"
 
 echo ""
