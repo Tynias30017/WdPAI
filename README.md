@@ -137,42 +137,30 @@ Baza spełnia rygorystyczne wymagania projektowe:
 
 ### Wersja Desktopowa (Komputerowa)
 
-1. **Pulpit (Dashboard):** Ekran główny prezentujący oficjalne kategorie wagowe IPF oraz szybki start dla zalogowanych.
-   ![Pulpit](screenshots/Untitled.png)
+1. **Pulpit (Dashboard):** Ekran główny prezentujący oficjalne kategorie wagowe IPF oraz szybki start dla zalogowanego zawodnika.
+   ![Pulpit](screenshots/dashboard.png)
 
-2. **Kreator Treningu:** Zaawansowany dziennik umożliwiający asynchroniczne logowanie serii, z automatycznym czasem odpoczynku i podglądem historii poprzedniego treningu.
-   ![Kreator Treningu](screenshots/Untitled%20(1).png)
+2. **Dziennik Treningowy (Lista):** Przejrzysty spis dotychczas zrealizowanych sesji treningowych z możliwością dodawania nowych.
+   ![Dziennik Treningowy](screenshots/workouts_list.png)
 
-3. **Statystyki i Wykresy:** Dynamiczne wykresy postępów (szacowany 1RM / objętość) rysowane w SVG przez czysty JS oraz osobiste rekordy PR pobierane z widoku bazodanowego.
-   ![Statystyki i Analizy](screenshots/Untitled%20(2).png)
+3. **Kreator Treningu (Szczegóły):** Zaawansowany moduł do asynchronicznego logowania serii (waga, powtórzenia, RPE, typ serii) z czasem odpoczynku i historią w locie.
+   ![Kreator Treningu](screenshots/workout_creator.png)
 
-4. **Baza Ćwiczeń (Katalog):** Katalog ćwiczeń trójbojowych z asynchronicznym wyszukiwaniem i filtrowaniem po kategoriach.
-   ![Baza Ćwiczeń](screenshots/Untitled%20(3).png)
+4. **Wykresy i Statystyki:** Interaktywny wykres postępów (szacowany 1RM / objętość) generowany dynamicznie w SVG oraz tabela rekordów życiowych (PR) pobierana z widoku bazodanowego.
+   ![Statystyki i Analizy](screenshots/analytics.png)
 
-5. **Mój Profil:** Panel zarządzania danymi zawodnika, gdzie waga ciała automatycznie wyznacza kategorię IPF (przez wyzwalacz bazy).
-   ![Mój Profil](screenshots/Untitled%20(4).png)
-
-6. **Panel Administratora:** Zarządzanie kontami użytkowników, edycja ról oraz bezpieczne usuwanie użytkowników.
-   ![Panel Administratora](screenshots/Untitled%20(5).png)
+5. **Baza Ćwiczeń (Katalog):** Wygodna wyszukiwarka ruchów trójbojowych i akcesoryjnych z filtrowaniem po kategoriach i grupach mięśniowych.
+   ![Baza Ćwiczeń](screenshots/exercises.png)
 
 ### Wersja Mobilna (Smartfony - Responsywność RWD)
 
 Aplikacja mobilna posiada **podążający dolny toolbar (pasek nawigacji) z ikonami SVG**, co zapobiega ucinaniu linków i przypomina natywną aplikację.
 
-7. **Profil i dolna nawigacja:** Uruchomiony profil w widoku na telefonie komórkowym.
-   ![Profil Mobilny](screenshots/Untitled%20(6).png)
+6. **Pulpit mobilny:** Ekran główny z dopasowaną siatką kafelków i dolnym toolbarlem na telefonie komórkowym.
+   ![Pulpit Mobilny](screenshots/mobile_view.png)
 
-8. **Kreator Treningu:** Dziennik treningowy w wersji na wąskim ekranie.
-   ![Kreator Treningu Mobilny](screenshots/Untitled%20(7).png)
-
-9. **Wykresy i Statystyki:** Prezentacja postępów i rekordów PR na telefonie.
-   ![Statystyki Mobilne](screenshots/Untitled%20(8).png)
-
-10. **Katalog Ćwiczeń:** Responsywny filtr bazy ruchów.
-    ![Baza Ćwiczeń Mobilna](screenshots/Untitled%20(9).png)
-
-11. **Panel Admina:** Tabela użytkowników w wersji RWD.
-    ![Panel Admina Mobilny](screenshots/Untitled%20(10).png)
+7. **Kreator Treningu Mobilny:** Dziennik i logowanie serii dopasowane do wąskich ekranów.
+   ![Kreator Treningu Mobilny](screenshots/mobile_workout.png)
 
 ---
 
