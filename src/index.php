@@ -17,11 +17,14 @@ use Core\Router;
 use Controllers\HomeController;
 use Controllers\AuthController;
 use Controllers\WorkoutController;
+use Controllers\ExerciseController;
 
 $router = new Router();
 
 // Rejestrujemy trasy
 $router->add('GET', '/', [HomeController::class, 'index']);
+$router->add('GET', '/exercises', [ExerciseController::class, 'index']);
+$router->add('POST', '/exercises', [ExerciseController::class, 'store']);
 $router->add('GET', '/register', [AuthController::class, 'register']);
 $router->add('POST', '/register', [AuthController::class, 'store']);
 $router->add('GET', '/login', [AuthController::class, 'login']);

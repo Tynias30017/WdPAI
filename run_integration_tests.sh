@@ -38,7 +38,10 @@ check_status "$BASE_URL/workouts" 302 "Chroniona trasa /workouts (Brak autoryzac
 # 5. Dostęp do panelu administratora bez autoryzacji (Powinno przekierować na logowanie - kod 302)
 check_status "$BASE_URL/admin/users" 302 "Chroniona trasa /admin/users (Brak autoryzacji -> Przekierowanie)"
 
-# 6. Nieistniejący zasób (Globalny router powinien zgłosić kod 404)
+# 6. Dostęp do bazy ćwiczeń bez autoryzacji (Powinno przekierować na logowanie - kod 302)
+check_status "$BASE_URL/exercises" 302 "Chroniona trasa /exercises (Brak autoryzacji -> Przekierowanie)"
+
+# 7. Nieistniejący zasób (Globalny router powinien zgłosić kod 404)
 check_status "$BASE_URL/non-existent-endpoint-test" 404 "Nieistniejący zasób (Strona błędu 404)"
 
 echo ""
